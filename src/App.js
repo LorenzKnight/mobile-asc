@@ -1,11 +1,7 @@
-import Login from './components/Login';
+import AppRouter from './routes/AppRouter';
 
 function App() {
-  return (
-    <div className="App">
-      <Login />
-    </div>
-  );  
+  return <AppRouter />;
 }
 
 export default App;
