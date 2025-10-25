@@ -1,0 +1,15 @@
+.form-input-style {
+    width: 90%;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid var(--clr-border);
+    display: block;
+    margin: 5px auto 16px;
+    padding: 14px;
+    text-align: center;
+    appearance: inherit;
+    -moz-appearance: inherit; 
+    -o-appearance: inherit;
+    -ms-appearance: inherit;
+    -webkit-appearance: inherit;
+}

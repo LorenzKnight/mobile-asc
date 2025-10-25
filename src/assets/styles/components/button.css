@@ -1,0 +1,18 @@
+.button-style-agree {
+	width: 95%;
+	background: var(--agree-blue); 
+	color: var(--clr-white);
+	font-size: 16px;
+    display: block;
+    margin: 0 auto;
+	padding: 14px 0;
+	border: none;
+	border-radius: 6px;
+	box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;
+    transition: background-color 0.3s ease;
+	cursor: pointer;
+}
+
+.button-style-agree:hover {
+    background-color: var(--main-bg-dark-blue);
+}

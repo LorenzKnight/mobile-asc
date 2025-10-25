@@ -1,0 +1,43 @@
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+}
+
+/* Logo afuera del form */
+.logo-container {
+  margin-bottom: 16px;
+}
+
+.logo-image {
+  width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+.login-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* min-height: 100vh; */
+  background-color: var(--main-bg-dark-blue);
+  padding: 16px;
+}
+
+.login-form {
+  background-color: var(--main-bg-blue);
+  padding: 24px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 24px;
+  color: var(--clr-white);
+  font-size: 26px;
+}
