@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
+import Scanner from '../pages/Scanner';
+import ScanResult from '../pages/ScanResult';
 import NotFound from '../pages/NotFound';
 
 function AppRouter() {
@@ -10,6 +12,8 @@ function AppRouter() {
 		<Routes>
 			<Route path="/" element={<Login />} />
 			<Route path="/dashboard" element={<Dashboard />} />
+			<Route path="/scanner" element={<Scanner />} />
+			<Route path="/scan-result/:data" element={<ScanResult />} />
 			<Route path="*" element={<NotFound />} />
 		</Routes>
 		</BrowserRouter>

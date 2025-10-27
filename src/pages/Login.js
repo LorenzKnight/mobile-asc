@@ -31,7 +31,7 @@ function Login() {
 			});
 
 			const data = await response.json();
-			console.log('Login response:', data);
+			// console.log('Login response:', data);
 
 			if (data.success && data.token) {
 				loginSuccess = true;

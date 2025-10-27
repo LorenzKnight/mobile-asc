@@ -1,0 +1,63 @@
+.dashboard-container {
+	/* background-color: #111827; */
+	/* color: white; */
+	display: flex;
+	flex-direction: column;
+}
+
+.dashboard-main {
+	flex: 1;
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.dashboard-title {
+	font-size: 22px;
+	font-weight: bold;
+	margin: 20px 0;
+	text-align: center;
+	color: var(--clr-white);
+}
+
+/* 🔹 Grupo de botones */
+.button-group {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+/* 🔹 Botones principales */
+.dash-btn {
+	width: 95%;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 12px;
+	background-color: var(--clr-bg-transparent-dark);
+	color: white;
+	border: none;
+	padding: 24px 18px;
+	font-size: 20px;
+	border-radius: 12px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	/* box-shadow: 0 3px 6px rgba(0,0,0,0.3); */
+}
+
+.dash-btn:hover {
+	background-color: var(--clr-bg-transparent-darker);
+	transform: scale(1.02);
+}
+
+.dash-btn:active {
+	transform: scale(0.98);
+	opacity: 0.9;
+}
+
+.dash-btn span {
+	font-weight: 500;
+}
