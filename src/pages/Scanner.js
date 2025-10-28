@@ -13,16 +13,42 @@ const Scanner = () => {
 	const [torchAvailable, setTorchAvailable] = useState(false);
     const [stream, setStream] = useState(null);
     const navigate = useNavigate();
-    
     const videoRef = useRef(null);
+	const cameraStartedRef = useRef(false);
 
     useEffect(() => {
-        const savedPermission = localStorage.getItem("camera_permission");
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const checkCameraPermission = async () => {
+			try {
+				const savedPermission = localStorage.getItem("camera_permission");
+				const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-        if (!isIOS && savedPermission === "granted") {
-            startCamera();
-        }
+				// 🔍 Detectar permisos reales del navegador
+				if (navigator.permissions && navigator.permissions.query) {
+					const result = await navigator.permissions.query({ name: "camera" }).catch(() => null);
+					if (result && result.state === "granted") {
+						// console.log("✅ Permiso de cámara confirmado por el navegador");
+						setHasPermission(true);
+						if (!isIOS) startCamera(); // autoabrir si no es iOS
+						return;
+					}
+				}
+
+				// 🧭 Si el permiso fue guardado manualmente, intentar abrir cámara
+				if (savedPermission === "granted") {
+					setHasPermission(true);
+					if (!isIOS) startCamera();
+					return;
+				}
+
+				// 🚫 Si no tiene permiso guardado ni concedido, mostrar popup
+				setHasPermission(false);
+			} catch (err) {
+				console.warn("Error verificando permiso de cámara:", err);
+				setHasPermission(false);
+			}
+		};
+
+		checkCameraPermission();
 
 		const stopCameraHandler = () => {
 			if (stream) {
@@ -30,9 +56,8 @@ const Scanner = () => {
 				console.log("📷 Cámara detenida desde Header");
 			}
 
-			if (videoRef.current) {
-				videoRef.current.srcObject = null;
-			}
+			if (videoRef.current) videoRef.current.srcObject = null;
+			cameraStartedRef.current = false;
 		};
 
 		window.addEventListener("stopCamera", stopCameraHandler);
@@ -43,25 +68,80 @@ const Scanner = () => {
 				console.log("📷 Cámara detenida al desmontar Scanner");
 			}
 
+			cameraStartedRef.current = false;
 			window.removeEventListener("stopCamera", stopCameraHandler);
 		};
     }, []); // ✅ sin dependencias
 
+	useEffect(() => {
+		const blockBeepAudio = () => {
+			// 1️⃣ Eliminar cualquier <audio> que intente cargar scanner-beep
+			document.querySelectorAll('audio[src*="scanner-beep"]').forEach((audio) => {
+				console.log("🧹 Eliminando intento de beep interno");
+				audio.pause();
+				audio.removeAttribute("src");
+				audio.load();
+				audio.remove();
+			});
+
+			// 2️⃣ Interceptar futuras creaciones del audio
+			const observer = new MutationObserver(() => {
+				const audios = document.querySelectorAll('audio[src*="scanner-beep"]');
+				if (audios.length > 0) {
+					audios.forEach((a) => {
+						console.log("🚫 Bloqueado beep interno antes de cargar");
+						a.pause();
+						a.removeAttribute("src");
+						a.load();
+						a.remove();
+					});
+				}
+			});
+
+			observer.observe(document.body, { childList: true, subtree: true });
+			return observer;
+		};
+
+		const observer = blockBeepAudio();
+		return () => observer.disconnect();
+	}, []);
+
     const startCamera = async () => {
         try {
+			if (cameraStartedRef.current) return;
+			cameraStartedRef.current = true;
+
             const newStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "environment" },
             });
+
             setStream(newStream);
             setHasPermission(true);
             localStorage.setItem("camera_permission", "granted");
 
-            const track = newStream.getVideoTracks()[0];
-            const capabilities = track.getCapabilities();
-            if (capabilities.torch) setTorchAvailable(true);
+			const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+			if (isIOS) {
+				setTorchAvailable(false);
+				return;
+			}
+
+            if (videoRef.current) {
+				videoRef.current.srcObject = newStream;
+
+				videoRef.current.onloadedmetadata = () => {
+					const track = newStream.getVideoTracks()[0];
+					const capabilities = track.getCapabilities();
+					if (capabilities && capabilities.torch) {
+						console.log("💡 Torch disponible en este dispositivo");
+						setTorchAvailable(true);
+					} else {
+						console.log("❌ Torch no disponible");
+					}
+				};
+			}
         } catch (err) {
-            console.error("Error accediendo a la cámara:", err);
-            setError("No se pudo acceder a la cámara. Verifica los permisos en tu navegador.");
+            console.error("Error accessing the camera:", err);
+            setError("The camera could not be accessed. Please check your browser's permissions.");
             setHasPermission(false);
         }
     };
@@ -73,7 +153,7 @@ const Scanner = () => {
             const track = stream.getVideoTracks()[0];
             const capabilities = track.getCapabilities();
             if (!capabilities.torch) {
-                alert("Tu dispositivo no tiene linterna compatible.");
+                alert("Your device does not have a compatible flashlight.");
                 return;
             }
 
@@ -82,7 +162,7 @@ const Scanner = () => {
             });
             setTorchEnabled(!torchEnabled);
         } catch (err) {
-            console.error("Error al controlar la linterna:", err);
+            console.error("Error controlling flashlight:", err);
         }
     };
 
@@ -108,8 +188,8 @@ const Scanner = () => {
 	};
 
 	const handleError = (err) => {
-		console.error("Error de cámara:", err);
-		setError("No se pudo acceder a la cámara. Revisa permisos.");
+		console.error("Camera error:", err);
+		setError("The camera could not be accessed. Check permissions.");
 	};
 
     const handleClose = () => {
@@ -124,7 +204,7 @@ const Scanner = () => {
 			<Header />
 
 			<main className="scanner-main">
-				<h2 className="scanner-title">Escanear Código QR</h2>
+				<h2 className="scanner-title">Scan QR Code</h2>
 
                 {/* Modal para solicitar permiso de cámara */}
 				<Modal
@@ -132,13 +212,13 @@ const Scanner = () => {
 					title="Permitir acceso a la cámara"
 					message={
 						/iPhone|iPad|iPod/i.test(navigator.userAgent)
-							? "iOS te pedirá permiso en la siguiente ventana."
-							: "Necesitamos tu autorización para poder escanear códigos QR."
+							? "iOS will ask for your permission in the next window."
+							: "We need your authorization to scan QR codes."
 					}
 					onClose={handleClose}
 				>
 					<button onClick={startCamera} className="asc-btn">
-						📸 Permitir acceso
+						Allow access
 					</button>
 
 					{error && <p className="error-message">{error}</p>}
@@ -150,6 +230,7 @@ const Scanner = () => {
                             onDecode={handleScan}
                             onError={handleError}
                             scanDelay={200}
+							beep={false} // desactivado, usamos custom
                             style={{ width: "100%", height: "100%" }}
                             constraints={{
                                 facingMode: "environment", // Cámara trasera
@@ -173,7 +254,7 @@ const Scanner = () => {
 				{/* 🔹 Mostrar resultado */}
 				{scanResult && (
 					<div className="scan-result">
-						<h3>Resultado:</h3>
+						<h3>Result:</h3>
 						<p>{scanResult}</p>
 					</div>
 				)}

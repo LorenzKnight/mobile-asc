@@ -1,6 +1,4 @@
 .dashboard-container {
-	/* background-color: #111827; */
-	/* color: white; */
 	display: flex;
 	flex-direction: column;
 }
@@ -45,7 +43,6 @@
 	border-radius: 12px;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	/* box-shadow: 0 3px 6px rgba(0,0,0,0.3); */
 }
 
 .dash-btn:hover {
