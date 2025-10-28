@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaBars } from "react-icons/fa";
+import Modal from "./Modal";
 import "../assets/styles/components/header.css";
 
 const Header = () => {
@@ -41,11 +42,14 @@ const Header = () => {
 	}, []);
 
 	const handleBack = () => {
+		window.dispatchEvent(new Event("stopCamera"));
+		
 		navigate("/dashboard");
 	};
 
 	const handleLogout = () => {
 		localStorage.removeItem("authToken");
+		localStorage.removeItem("camera_permission");
 		navigate("/");
 	};
 
@@ -74,16 +78,25 @@ const Header = () => {
 			</header>
 
 			{/* 🌙 Modal centrado */}
-			{menuOpen && (
-				<div className="menu-overlay">
-					<div className="menu-modal">
-						<h3>Menú</h3>
-						<button className="menu-item" onClick={() => { setMenuOpen(false); navigate("/settings"); }}>Settings</button>
-						<button className="menu-item" onClick={handleLogout}>Log out</button>
-						<button className="close-btn" onClick={() => setMenuOpen(false)}>✕</button>
-					</div>
-				</div>
-			)}
+			<Modal
+				show={menuOpen}
+				title="Menú principal"
+				onClose={() => setMenuOpen(false)}
+			>
+				<button
+					className="asc-btn"
+					onClick={() => {
+						setMenuOpen(false);
+						navigate("/settings");
+					}}
+				>
+					Settings
+				</button>
+
+				<button className="asc-btn" onClick={handleLogout}>
+					Log out
+				</button>
+			</Modal>
 		</>
 	);
 };

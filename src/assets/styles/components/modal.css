@@ -1,0 +1,87 @@
+/* Fondo */
+.asc-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(6px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100;
+}
+
+/* Caja del modal */
+.asc-modal {
+	background: #1f2937;
+    color: white;
+    width: 85%;
+    max-width: 360px;
+    border-radius: 14px;
+	padding: 24px 20px 30px;
+	text-align: center;
+    position: relative;
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+	
+	animation: fadeIn 0.3s ease-in-out;
+}
+
+.asc-modal h3 {
+	margin-top: 5px;
+	margin-bottom: 20px;
+	font-size: 1.3rem;
+	border-bottom: 1px solid #374151;
+    padding-bottom: 20px;
+}
+
+.asc-modal p {
+	font-size: 0.95rem;
+	color: #9ca3af;
+	line-height: 1.4;
+	margin-bottom: 16px;
+}
+
+/* Botones reutilizables */
+.asc-btn {
+	width: 100%;
+    background: #374151;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 8px 0;
+    font-size: 16px;
+    cursor: pointer;
+    /* transition: background 0.2s; */
+	transition: all 0.2s ease;
+}
+
+.asc-btn:hover {
+	background: #4b5563;
+}
+
+/* Botón de cerrar */
+.asc-btn-close {
+	background: none;
+    border: none;
+	color: white;
+	font-size: 22px;
+	cursor: pointer;
+	margin-top: 20px;
+	/* transition: color 0.2s ease, transform 0.1s ease; */
+}
+
+.asc-btn-close:hover {
+	color: #4b5563;
+	transform: scale(1.1);
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
