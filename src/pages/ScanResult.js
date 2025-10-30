@@ -25,6 +25,7 @@ const ScanResult = () => {
 	const [shippingInfo, setShippingInfo] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [alreadyChecked, setAlreadyChecked] = useState(false);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -36,6 +37,7 @@ const ScanResult = () => {
 				// ✅ Extraemos company_id del token
 				const decoded = decodeJWT(token);
 				const companyId = decoded?.company_id;
+				const userId = decoded?.user_id;
 
 				if (!companyId) throw new Error("Company ID not found in token.");
 
@@ -49,16 +51,39 @@ const ScanResult = () => {
 							Authorization: `Bearer ${token}`,
 							"Content-Type": "application/json",
 						},
-						credentials: "include",
 					}
 				);
 
 				const result = await response.json();
 
 				if (result.success && result.data.length > 0) {
-					setShippingInfo(result.data[0]);
+					const shipping = result.data[0];
+					setShippingInfo(shipping);
+
+					// 🚨 Validación de status del envío
+					if (shipping.status > 1) {
+						setAlreadyChecked(true);
+						showTemporaryPopup("Already checked ✅");
+						return;
+					}
+
+					// 🔎 Verificar si el usuario ya registró este envío en tracking
+					const trackResponse = await fetch(
+						`https://www.allstockcontrol.com/api/check_tracking_exists.php?shipping_id=${shipping.shippings_id || shipping.shipping_id}&user_id=${userId}`,
+						{
+							headers: {
+								Authorization: `Bearer ${token}`,
+							},
+						}
+					);
+
+					const trackResult = await trackResponse.json();
+					if (trackResult.exists) {
+						setAlreadyChecked(true);
+						showTemporaryPopup("Already checked ✅");
+					}
 				} else {
-					setError(result.message || "No information was found for this code.");
+					setError(result.message || "No information found for this code.");
 				}
 			} catch (err) {
 				console.error("Error getting information from QR:", err);
@@ -71,6 +96,66 @@ const ScanResult = () => {
 		fetchShippingInfo();
 	}, [data]);
 
+	const showTemporaryPopup = (message) => {
+		const popup = document.createElement("div");
+		popup.className = "check-popup";
+		popup.textContent = message;
+		document.body.appendChild(popup);
+		setTimeout(() => popup.remove(), 2000);
+	};
+
+    const handleCheck = async () => {
+		if (!shippingInfo || alreadyChecked) return;
+
+		try {
+			const token = localStorage.getItem("authToken");
+			if (!token) throw new Error("Auth token not found.");
+
+			// Intentar obtener la ubicación actual
+			let latitude = null;
+			let longitude = null;
+			try {
+				const position = await new Promise((resolve, reject) => {
+					navigator.geolocation.getCurrentPosition(resolve, reject, {
+						enableHighAccuracy: true,
+						timeout: 5000,
+					});
+				});
+				latitude = position.coords.latitude;
+				longitude = position.coords.longitude;
+			} catch {
+				console.warn("No se pudo obtener la ubicación GPS.");
+			}
+
+			// Enviar datos al backend
+			const formData = new FormData();
+			formData.append("shipping_id", shippingInfo.shippings_id || shippingInfo.shipping_id);
+			formData.append("latitude", latitude);
+			formData.append("longitude", longitude);
+
+			const res = await fetch("https://www.allstockcontrol.com/api/check_shipping.php", {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				body: formData,
+			});
+
+			const result = await res.json();
+
+			if (result.success) {
+				// ✅ Mostrar popup temporal de éxito
+				showTemporaryPopup("✔ Checked!");
+				setTimeout(() => navigate("/scanner"), 2000);
+			} else {
+				alert(result.message || "Error checking shipping.");
+			}
+		} catch (err) {
+			console.error("Error on check:", err);
+			alert(err.message || "Unexpected error.");
+		}
+	};
+
 	return (
 		<div className="scan-result-page">
 			<Header />
@@ -81,15 +166,15 @@ const ScanResult = () => {
 				{shippingInfo && (
 					<div className="info-box">
                         <div className="shipping-seccion">
-                            <h3>Shipping No: {shippingInfo.shipping_no}</h3>
+                            <h3>📦 Shipping: {shippingInfo.shipping_no}</h3>
                             <p>
-                                <strong>Destino:</strong> {shippingInfo.destination || "N/A"}
+                                <strong>Destination:</strong> {shippingInfo.destination || "N/A"}
                             </p>
                             <p>
-                                <strong>Estado:</strong> {shippingInfo.status || "Desconocido"}
+                                <strong>Status:</strong> {shippingInfo.status || "Desconocido"}
                             </p>
                             <p>
-                                <strong>Fecha:</strong> {shippingInfo.delivery_date || "Sin fecha"}
+                                <strong>Estimated arrival:</strong> {shippingInfo.delivery_date || "Sin fecha"}
                             </p>
                         </div>
 
@@ -100,10 +185,10 @@ const ScanResult = () => {
 								{shippingInfo.loads.map((load) => (
 									<div key={load.load_id} className="load-card">
 										<p>
-											<strong>Carga:</strong> {load.load_no}
+											<strong>🧱 Load:</strong> {load.load_no}
 										</p>
 										<p>
-											<strong>Cliente:</strong> {load.customer?.full_name || "N/A"}
+											<strong>customer:</strong> {load.customer?.full_name || "N/A"}
 										</p>
 										<p>
 											<strong>Destino:</strong> {load.destination || "N/A"}
@@ -112,7 +197,7 @@ const ScanResult = () => {
 										{/* 📦 Productos */}
 										{load.products?.length > 0 && (
 											<div className="products-list">
-												<h5>Productos:</h5>
+												<h5>Products:</h5>
 												<ul>
 													{load.products.map((p) => (
 														<li key={p.product_id}>
@@ -128,10 +213,18 @@ const ScanResult = () => {
 						)}
 					</div>
 				)}
+                <div>
+                    <button className="scan-btn" onClick={() => navigate("/scanner")}>
+                        Scan another code
+                    </button>
 
-				<button className="btn-volver" onClick={() => navigate("/scanner")}>
-					🔁 Escanear otro código
-				</button>
+                    {/* Solo muestra el botón si NO ha sido verificado */}
+					{!alreadyChecked && (
+						<button className="scan-btn" onClick={handleCheck}>
+							Check ✅
+						</button>
+					)}
+                </div>
 			</main>
 		</div>
 	);
