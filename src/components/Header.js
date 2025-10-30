@@ -28,9 +28,12 @@ const Header = () => {
 
 				const data = await response.json();
 				if (data.success) {
+					const activeToken = Array.isArray(data.data.tokens) ? data.data.tokens[0] : null;
+					const userLocation = activeToken?.location || "Unknown";
+
 					setUserInfo({
 						name: `${data.data.name} ${data.data.surname || ""}`.trim(),
-						location: data.data.package_info?.package_name || "Unknown",
+						location: userLocation,
 					});
 				}
 			} catch (error) {
@@ -43,7 +46,7 @@ const Header = () => {
 
 	const handleBack = () => {
 		window.dispatchEvent(new Event("stopCamera"));
-		
+
 		navigate("/dashboard");
 	};
 

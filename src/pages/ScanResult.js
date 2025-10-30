@@ -31,13 +31,13 @@ const ScanResult = () => {
 		const fetchShippingInfo = async () => {
 			try {
 				const token = localStorage.getItem("authToken");
-				if (!token) throw new Error("No se encontró el token de autenticación.");
+				if (!token) throw new Error("Auth token not found.");
 
 				// ✅ Extraemos company_id del token
 				const decoded = decodeJWT(token);
 				const companyId = decoded?.company_id;
 
-				if (!companyId) throw new Error("No se encontró el ID de la compañía en el token.");
+				if (!companyId) throw new Error("Company ID not found in token.");
 
 				const response = await fetch(
 					`https://www.allstockcontrol.com/api/get_shippings.php?search=${encodeURIComponent(
@@ -58,11 +58,11 @@ const ScanResult = () => {
 				if (result.success && result.data.length > 0) {
 					setShippingInfo(result.data[0]);
 				} else {
-					setError(result.message || "No se encontró información para este código.");
+					setError(result.message || "No information was found for this code.");
 				}
 			} catch (err) {
-				console.error("Error al obtener información del QR:", err);
-				setError(err.message || "Error al conectar con el servidor.");
+				console.error("Error getting information from QR:", err);
+				setError(err.message || "Error connecting to the server.");
 			} finally {
 				setLoading(false);
 			}
@@ -75,28 +75,28 @@ const ScanResult = () => {
 		<div className="scan-result-page">
 			<Header />
 			<main style={{ padding: "16px" }}>
-				<h2>Resultado del Escaneo</h2>
-
-				{loading && <p>Cargando información...</p>}
+				{loading && <p>Loading information...</p>}
 				{error && <p style={{ color: "red" }}>{error}</p>}
 
 				{shippingInfo && (
 					<div className="info-box">
-						<h3>📦 Envío #{shippingInfo.shipping_no}</h3>
-						<p>
-							<strong>Destino:</strong> {shippingInfo.destination || "N/A"}
-						</p>
-						<p>
-							<strong>Estado:</strong> {shippingInfo.status || "Desconocido"}
-						</p>
-						<p>
-							<strong>Fecha:</strong> {shippingInfo.delivery_date || "Sin fecha"}
-						</p>
+                        <div className="shipping-seccion">
+                            <h3>Shipping No: {shippingInfo.shipping_no}</h3>
+                            <p>
+                                <strong>Destino:</strong> {shippingInfo.destination || "N/A"}
+                            </p>
+                            <p>
+                                <strong>Estado:</strong> {shippingInfo.status || "Desconocido"}
+                            </p>
+                            <p>
+                                <strong>Fecha:</strong> {shippingInfo.delivery_date || "Sin fecha"}
+                            </p>
+                        </div>
 
 						{/* 🧱 Loads */}
+                        <h4>Associated loads:</h4>
 						{shippingInfo.loads?.length > 0 && (
 							<div className="loads-section">
-								<h4>Cargas asociadas:</h4>
 								{shippingInfo.loads.map((load) => (
 									<div key={load.load_id} className="load-card">
 										<p>
