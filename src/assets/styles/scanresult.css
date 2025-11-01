@@ -1,10 +1,10 @@
 .info-box {
 	background-color: var(--clr-bg-transparent-dark);
     color: var(--clr-white);
-    height: 71vh;
-	padding: 5px 10px;
+    height: 67vh;
+	padding: 0 10px 10px;
 	border-radius: 12px;
-	margin-top: 10px;
+	margin-top: 5px;
 	box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     display: flex;
 	flex-direction: column;
@@ -12,8 +12,9 @@
 }
 
 .info-box p {
-    margin: 5px 0;
+    margin: 5px 0 0;
 }
+
 .shipping-seccion {
     flex: 0 0 26%;
 }
@@ -25,8 +26,9 @@
 }
 
 .load-card {
-	background-color: var(--clr-white);
-    color: var(--main-text-color);
+	background-color: var(--frm-bg-transparent-grey);
+    color: var(--clr-light-border);
+    border: 1px solid var(--clr-border);
 	margin-top: 10px;
 	padding: 10px 15px;
 	border-radius: 10px;
@@ -37,17 +39,29 @@
 	padding-left: 20px;
 }
 
+.scan-btn-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 10px;
+}
+
 .scan-btn {
-    width: 48%;
+    flex: 1;
 	background-color: var(--clr-bg-transparent-dark);
 	color: var(--clr-white);
     font-size: 14px;
-    margin: 20px 1% 0;
+    /* margin: 20px 1% 0; */
 	padding: 20px 16px;
 	border-radius: 8px;
 	border: none;
 	cursor: pointer;
     transition: all 0.2s ease;
+    text-align: center;
+}
+
+.scan-btn-container:has(.scan-btn:only-child) .scan-btn {
+	flex: 0 0 100%;
 }
 
 .scan-btn:hover {

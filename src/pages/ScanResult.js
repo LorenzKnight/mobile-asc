@@ -28,23 +28,29 @@ const ScanResult = () => {
 	const [alreadyChecked, setAlreadyChecked] = useState(false);
 	const navigate = useNavigate();
 
+	const showTemporaryPopup = (message) => {
+		const popup = document.createElement("div");
+		popup.className = "check-popup";
+		popup.textContent = message;
+		document.body.appendChild(popup);
+		setTimeout(() => popup.remove(), 2000);
+	};
+
 	useEffect(() => {
 		const fetchShippingInfo = async () => {
 			try {
 				const token = localStorage.getItem("authToken");
 				if (!token) throw new Error("Auth token not found.");
 
-				// ✅ Extraemos company_id del token
 				const decoded = decodeJWT(token);
 				const companyId = decoded?.company_id;
-				const userId = decoded?.user_id;
 
 				if (!companyId) throw new Error("Company ID not found in token.");
 
 				const response = await fetch(
 					`https://www.allstockcontrol.com/api/get_shippings.php?search=${encodeURIComponent(
 						data
-					)}&company=${companyId}`, // 👈 agregamos company
+					)}&company=${companyId}`,
 					{
 						method: "GET",
 						headers: {
@@ -61,24 +67,35 @@ const ScanResult = () => {
 					setShippingInfo(shipping);
 
 					// 🚨 Validación de status del envío
-					if (shipping.status > 1) {
+					if (shipping.status >= 3) {
 						setAlreadyChecked(true);
 						showTemporaryPopup("Already checked ✅");
 						return;
 					}
 
-					// 🔎 Verificar si el usuario ya registró este envío en tracking
-					const trackResponse = await fetch(
-						`https://www.allstockcontrol.com/api/check_tracking_exists.php?shipping_id=${shipping.shippings_id || shipping.shipping_id}&user_id=${userId}`,
+					// 🧩 NUEVA VALIDACIÓN:
+					// Verificar si este usuario ya está en shipping_tracking
+					const trackRes = await fetch(
+						`https://www.allstockcontrol.com/api/check_shipping.php`,
 						{
+							method: "POST",
 							headers: {
 								Authorization: `Bearer ${token}`,
 							},
+							body: (() => {
+								const f = new FormData();
+								f.append("shipping_id", shipping.shippings_id || shipping.shipping_id);
+								f.append("test_mode", "check_only"); // 👈 no insertará nada
+								return f;
+							})(),
 						}
 					);
 
-					const trackResult = await trackResponse.json();
-					if (trackResult.exists) {
+					const trackResult = await trackRes.json();
+					if (
+						trackResult.message?.includes("Already checked") ||
+						trackResult.message?.includes("already delivered")
+					) {
 						setAlreadyChecked(true);
 						showTemporaryPopup("Already checked ✅");
 					}
@@ -95,14 +112,6 @@ const ScanResult = () => {
 
 		fetchShippingInfo();
 	}, [data]);
-
-	const showTemporaryPopup = (message) => {
-		const popup = document.createElement("div");
-		popup.className = "check-popup";
-		popup.textContent = message;
-		document.body.appendChild(popup);
-		setTimeout(() => popup.remove(), 2000);
-	};
 
     const handleCheck = async () => {
 		if (!shippingInfo || alreadyChecked) return;
@@ -148,11 +157,35 @@ const ScanResult = () => {
 				showTemporaryPopup("✔ Checked!");
 				setTimeout(() => navigate("/scanner"), 2000);
 			} else {
-				alert(result.message || "Error checking shipping.");
+				// 🎯 Mostrar mensaje según tipo
+				if (result.message.includes("Already checked")) {
+					showTemporaryPopup("Already checked ✅");
+					setAlreadyChecked(true);
+				} else if (result.message.includes("already delivered")) {
+					showTemporaryPopup("Already delivered ✅");
+					setAlreadyChecked(true);
+				} else {
+					alert(result.message || "Error checking shipping.");
+				}
 			}
 		} catch (err) {
 			console.error("Error on check:", err);
 			alert(err.message || "Unexpected error.");
+		}
+	};
+
+	// 🧾 Mapeo de estados
+	const getStatusText = (status) => {
+		switch (parseInt(status)) {
+			case 0:
+			case 1:
+				return "Pending";
+			case 2:
+				return "In transit";
+			case 3:
+				return "Delivered";
+			default:
+				return "Unknown";
 		}
 	};
 
@@ -171,7 +204,7 @@ const ScanResult = () => {
                                 <strong>Destination:</strong> {shippingInfo.destination || "N/A"}
                             </p>
                             <p>
-                                <strong>Status:</strong> {shippingInfo.status || "Desconocido"}
+                                <strong>Status:</strong> {getStatusText(shippingInfo.status)}
                             </p>
                             <p>
                                 <strong>Estimated arrival:</strong> {shippingInfo.delivery_date || "Sin fecha"}
@@ -213,7 +246,7 @@ const ScanResult = () => {
 						)}
 					</div>
 				)}
-                <div>
+                <div className="scan-btn-container">
                     <button className="scan-btn" onClick={() => navigate("/scanner")}>
                         Scan another code
                     </button>
