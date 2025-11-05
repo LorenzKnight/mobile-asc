@@ -18,6 +18,10 @@ function Login() {
 		let loginSuccess = false;
 
 		try {
+			if (!navigator.onLine) {
+				throw new Error('No internet connection.');
+			}
+
 			const response = await fetch('https://www.allstockcontrol.com/api/login.php', {
 				method: 'POST',
 				headers: {
@@ -50,7 +54,14 @@ function Login() {
 
 		} catch (error) {
 			console.error('Error al hacer login:', error);
-			setErrorMessage('Server connection error.');
+
+			if (error.message === 'No internet connection.') {
+				setErrorMessage('No internet connection. Check Wi-Fi or mobile data.');
+			} else if (error.message.includes('Failed to fetch')) {
+				setErrorMessage('Unable to reach the server. Try again later.');
+			} else {
+				setErrorMessage('Server connection error.');
+			}
 		} finally {
 			if (!loginSuccess) setLoading(false);
 		}
