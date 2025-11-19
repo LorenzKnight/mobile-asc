@@ -1,11 +1,43 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaQrcode, FaClipboardList, FaUsersCog, FaChartLine } from "react-icons/fa";
 import Header from "../components/Header";
 import '../assets/styles/dashboard.css';
+import '../assets/styles/global.css';
 
 const Dashboard = () => {
 	const navigate = useNavigate();
+	const [permissions, setPermissions] = useState({});
+	const [systemPerms, setSystemPerms] = useState({});
+
+	useEffect(() => {
+		const token = localStorage.getItem("authToken");
+        if (!token) {
+            navigate("/");
+            return;
+        }
+
+		const loadPermissions = () => {
+			const stored = localStorage.getItem("userPermissions");
+			if (stored) setPermissions(JSON.parse(stored));
+		};
+
+		const loadSystemPermissions = () => {
+			const stored = localStorage.getItem("userSystemPermissions");
+			if (stored) setSystemPerms(JSON.parse(stored));
+		};
+
+		loadPermissions();
+		loadSystemPermissions();
+
+		window.addEventListener("permissionsUpdated", loadPermissions);
+		window.addEventListener("systemPermissionsUpdated", loadSystemPermissions);
+
+		return () => {
+			window.removeEventListener("permissionsUpdated", loadPermissions);
+			window.removeEventListener("systemPermissionsUpdated", loadSystemPermissions);
+		};
+	}, [navigate]);
 
 	return (
 		<div className="dashboard-container">
@@ -15,25 +47,38 @@ const Dashboard = () => {
 				<h1 className="dashboard-title">Welcome to the Dashboard</h1>
 
 				<div className="button-group">
-					<button className="dash-btn" onClick={() => navigate("/scanner")}>
-						<FaQrcode size={22} />
-						<span>Scanner</span>
-					</button>
+					{/* Scanner */}
+					{permissions.shipping_access && systemPerms.process_handler && (
+						<button className="dash-btn" onClick={() => navigate("/scanner")}>
+							<FaQrcode size={22} />
+							<span>Scanner</span>
+						</button>
+					)}
 
-					<button className="dash-btn" onClick={() => navigate("/preorder")}>
-						<FaClipboardList size={22} />
-						<span>Pre-order</span>
-					</button>
+					{/* Pre-order */}
+					{permissions.preorder_access && (
+						<button className="dash-btn" onClick={() => navigate("/preorder")}>
+							<FaClipboardList size={22} />
+							<span>Pre-order</span>
+						</button>
+					)}
 
-					<button className="dash-btn" onClick={() => navigate("/collaborators")}>
-						<FaUsersCog size={22} />
-						<span>Collaborator access</span>
-					</button>
+					{/* Collaborators */}
+					{permissions.collaborators_access && (
+						<button className="dash-btn" onClick={() => navigate("/collaborators")}>
+							<FaUsersCog size={22} />
+							<span>Collaborator access</span>
+						</button>
+					)}
 
-					<button className="dash-btn" onClick={() => navigate("/reports")}>
-						<FaChartLine size={22} />
-						<span>Reports</span>
-					</button>
+					{/* Reports */}
+					{permissions.reports_access && (
+						<button className="dash-btn" onClick={() => navigate("/reports")}>
+							<FaChartLine size={22} />
+							<span>Reports</span>
+						</button>
+					)}
+
 				</div>
 			</main>
 		</div>

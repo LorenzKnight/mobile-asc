@@ -1,5 +1,4 @@
 @import url("color-palette.css");
-
 @import url('./components/form.css');
 @import url('./components/button.css');
 @import url('./components/message.css');
@@ -17,4 +16,8 @@ body {
 code {
 	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
 		monospace;
+}
+
+.hidden {
+    display: none !important;
 }
