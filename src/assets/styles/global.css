@@ -21,3 +21,9 @@ code {
 .hidden {
     display: none !important;
 }
+
+.mini-title {
+	color: #666 !important;
+	font-size: 13px;
+	padding: 5px 0 0;
+}

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaQrcode, FaClipboardList, FaUsersCog, FaChartLine } from "react-icons/fa";
+import { TbShip } from "react-icons/tb";
 import Header from "../components/Header";
+
 import '../assets/styles/dashboard.css';
 import '../assets/styles/global.css';
 
@@ -55,6 +57,14 @@ const Dashboard = () => {
 						</button>
 					)}
 
+					{/* Shipping Status */}
+					{systemPerms.platform_admin && (
+						<button className="dash-btn" onClick={() => navigate("/shipping-status")}>
+							<TbShip size={22} />
+							<span>Shipping Status</span>
+						</button>
+					)}
+
 					{/* Pre-order */}
 					{permissions.preorder_access && (
 						<button className="dash-btn" onClick={() => navigate("/preorder")}>
@@ -64,7 +74,7 @@ const Dashboard = () => {
 					)}
 
 					{/* Collaborators */}
-					{permissions.collaborators_access && (
+					{systemPerms.platform_admin && (
 						<button className="dash-btn" onClick={() => navigate("/collaborators")}>
 							<FaUsersCog size={22} />
 							<span>Collaborator access</span>

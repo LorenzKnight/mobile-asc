@@ -1,0 +1,47 @@
+.shipping-status-list {
+    width: 95%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.shipping-card {
+    padding: 15px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 .15rem .45rem rgba(58,59,69,.15);
+}
+
+.shipping-card h3 {
+    margin: 0 0 5px 0;
+}
+
+.shipping-card p {
+    margin: 0;
+    color: var(--clr-dark-text);
+}
+
+.filter-container {
+    margin-bottom: 15px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.status-filter {
+    padding: 8px 12px;
+	border-radius: 8px;
+	border: 1px solid #ccc;
+    font-size: 16px;
+    width: 180px;
+}
+
+.search-input {
+    flex: 1;
+	padding: 8px 12px 8px 40px;
+	border-radius: 8px;
+	border: 1px solid #ccc;
+	font-size: 16px;
+	width: 190px;
+}

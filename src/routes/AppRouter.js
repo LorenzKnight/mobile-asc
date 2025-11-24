@@ -4,6 +4,7 @@ import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import Scanner from '../pages/Scanner';
 import ScanResult from '../pages/ScanResult';
+import ShippingStatus from "../pages/ShippingStatus";
 import NotFound from '../pages/NotFound';
 
 function AppRouter() {
@@ -14,6 +15,7 @@ function AppRouter() {
 			<Route path="/dashboard" element={<Dashboard />} />
 			<Route path="/scanner" element={<Scanner />} />
 			<Route path="/scan-result/:data" element={<ScanResult />} />
+			<Route path="/shipping-status" element={<ShippingStatus />} />
 			<Route path="*" element={<NotFound />} />
 		</Routes>
 		</BrowserRouter>
