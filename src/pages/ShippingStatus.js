@@ -130,7 +130,7 @@ const ShippingStatus = () => {
 								filteredShippings.map(shipping => {
 									const shippingMethodIcon = shipping.shipping_method === "2" ? ( <TbPlane size={36} color="#3b82f6" /> ) : ( <TbTruck size={36} color="#3b82f6" /> );
 									const statusColor = statusColors[shipping.status] || "#6b7280";
-									const shippingTracking = shipping.tracking?.checkpoint_name || "No tracking available";
+									const shippingTracking = shipping.tracking?.checkpoint_name || "No tracking available yet.";
 
 									return (
 										<div key={shipping.shippings_id} className="shipping-card"
