@@ -1,6 +1,9 @@
 .shipping-status-list {
     width: 95%;
+    height: 67vh;
+    overflow: auto;
     margin: 20px auto;
+    padding: 0 2.5%;
     display: flex;
     flex-direction: column;
     gap: 15px;

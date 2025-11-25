@@ -191,7 +191,6 @@ const ShippingStatus = () => {
 																{/* Products inside the load */}
 																<div className="products-list">
 																	{load.products.map(prod => (
-																		console.log(prod) ||
 																		<div key={prod.product_id} className="product-row">
 																			<img
 																				src={
