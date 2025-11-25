@@ -124,7 +124,7 @@ const ShippingStatus = () => {
 								<p style={{
 									textAlign: "center",
 									marginTop: "50px",
-									color: "#fff"
+									color: "var(--clr-white)"
 								}}>No shipping records found.</p>
 							) : (
 								filteredShippings.map(shipping => {
@@ -155,7 +155,7 @@ const ShippingStatus = () => {
 														<td width="78%" align="left" valign="top">
 															<div style={{ padding: "0 5px" }}>
 																<p>
-																	Shipping No.:{" "}
+																	Shipping No:{" "}
 																	<strong>{shipping.shipping_no || '—'}</strong>
 																</p>
 
@@ -183,20 +183,21 @@ const ShippingStatus = () => {
 														<p>No loads found.</p>
 													) : (
 														shipping.loads.map(load => (
-															<div key={load.load_id} className="load-card">
+															<div key={load.load_id} className="status-load-card">
 																<h4>
-																	Load #{load.load_no} — {load.customer.full_name}
+																	Load No: {load.load_no} — {load.customer.full_name}
 																</h4>
 
 																{/* Products inside the load */}
 																<div className="products-list">
 																	{load.products.map(prod => (
+																		console.log(prod) ||
 																		<div key={prod.product_id} className="product-row">
 																			<img
 																				src={
 																					prod.image
 																						? `https://www.allstockcontrol.com/images/products/${prod.image}`
-																						: "https://www.allstockcontrol.com/images/sys-img/NonImage.png"
+																						: "https://www.allstockcontrol.com/images/sys-img/papel-box.png"
 																				}
 																				alt="product"
 																				className="product-thumb"
@@ -205,10 +206,14 @@ const ShippingStatus = () => {
 																			<div className="product-info">
 																				<strong>{prod.name}</strong>
 																				<p>
-																					{prod.mark_name} / {prod.model_name} /{" "}
-																					{prod.submodel_name}
+																					{prod.mark_name && (
+																						<>
+																							{prod.mark_name} / {prod.model_name} /{" "}
+																							{prod.submodel_name}
+																						</>
+																					)}
 																				</p>
-																				<p>{prod.quantity} pcs — {prod.total_weight} kg</p>
+																				<p>{prod.quantity} pcs — {prod.total_kg} kg</p>
 																			</div>
 																		</div>
 																	))}
