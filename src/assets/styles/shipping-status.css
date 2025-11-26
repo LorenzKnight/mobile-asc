@@ -1,6 +1,7 @@
 .shipping-status-list {
     width: 95%;
-    height: 67vh;
+    height: 60vh;
+    /* background-color: red; */
     overflow: auto;
     margin: 20px auto;
     padding: 0 2.5%;

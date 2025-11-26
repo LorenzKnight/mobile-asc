@@ -14,8 +14,7 @@ function Login() {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setLoading(true);
-
-		let loginSuccess = false;
+		setErrorMessage('');
 
 		try {
 			if (!navigator.onLine) {
@@ -26,6 +25,7 @@ function Login() {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
+					'X-App-Client': 'mobile',
 				},
 				body: new URLSearchParams({
 					login_email: email,
@@ -38,32 +38,26 @@ function Login() {
 			// console.log('Login response:', data);
 
 			if (data.success && data.token) {
-				loginSuccess = true;
-				setErrorMessage('');
 				// ✅ Guardar el token en el almacenamiento local
 				localStorage.setItem('authToken', data.token);
 
 				setTimeout(() => {
 					setLoading(false); 
 					navigate('/dashboard');
-				}, 2000);
-				return;
+				}, 1000);
 			} else {
+				setLoading(false);
 				setErrorMessage(data.message || 'Incorrect credentials.');
 			}
 
 		} catch (error) {
-			console.error('Error al hacer login:', error);
+			setLoading(false);
 
 			if (error.message === 'No internet connection.') {
 				setErrorMessage('No internet connection. Check Wi-Fi or mobile data.');
 			} else if (error.message.includes('Failed to fetch')) {
-				setErrorMessage('Unable to reach the server. Try again later.');
-			} else {
-				setErrorMessage('Server connection error.');
+				setErrorMessage('Unable to reach the server.');
 			}
-		} finally {
-			if (!loginSuccess) setLoading(false);
 		}
 	};
 
