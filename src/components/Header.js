@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { apiFetch } from "../utils/functions";
 import { FaArrowLeft, FaBars } from "react-icons/fa";
 import Modal from "./Modal";
 import "../assets/styles/components/header.css";
@@ -19,14 +20,13 @@ const Header = () => {
 
 		const fetchUser = async () => {
 			try {
-				const response = await fetch("https://www.allstockcontrol.com/api/get_my_info.php", {
-					method: "GET",
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				});
+				const data = await apiFetch(
+					"https://www.allstockcontrol.com/api/get_my_info.php",
+					{ method: "GET" }
+				);
 
-				const data = await response.json();
+				if (!data) return;
+
 				if (data.success) {
 					const activeToken = Array.isArray(data.data.tokens) ? data.data.tokens[0] : null;
 					const userLocation = activeToken?.location || "Unknown";
@@ -60,11 +60,11 @@ const Header = () => {
 				let userPermissions = {};
 
 				for (const name of permissionsToCheck) {
-					const res = await fetch(`https://www.allstockcontrol.com/api/check_service_rights.php?service_name=${encodeURIComponent(name)}`, {
-						headers: { Authorization: `Bearer ${token}` },
-					});
+					const data = await apiFetch(
+						`https://www.allstockcontrol.com/api/check_service_rights.php?service_name=${encodeURIComponent(name)}`
+					);
 
-					const data = await res.json();
+					if (!data) return;
 					// console.log("Permission check:", name, data);
 					userPermissions[name] = data.success && data.data?.can_access === true;
 				}
@@ -96,12 +96,11 @@ const Header = () => {
                 let systemPerms = {};
 
                 for (const name of hierarchyPermissionsToCheck) {
-                    const res = await fetch(
-                        `https://www.allstockcontrol.com/api/check_permission.php?permission=${encodeURIComponent(name)}`,
-                        { headers: { Authorization: `Bearer ${token}` } }
-                    );
+					const data = await apiFetch(
+						`https://www.allstockcontrol.com/api/check_permission.php?permission=${encodeURIComponent(name)}`
+					);
 
-                    const data = await res.json();
+					if (!data) return;
 					// console.log("Permission check:", name, data);
                     systemPerms[name] = data.success && data.has_permission === true;
                 }

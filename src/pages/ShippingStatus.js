@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { TbTruck, TbPlane } from "react-icons/tb";
 import { FiSearch } from "react-icons/fi";
-import { formatNotificationDate } from "../utils/functions";
+import { formatNotificationDate, apiFetch } from "../utils/functions";
 import Header from "../components/Header";
 
 import "../assets/styles/shipping-status.css";
 import "../assets/styles/global.css";
 
 const ShippingStatus = () => {
-    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [shippings, setShippings] = useState([]);
     const [error, setError] = useState("");
@@ -18,27 +16,30 @@ const ShippingStatus = () => {
 	const [searchText, setSearchText] = useState("");
 
     useEffect(() => {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-            navigate("/");
-            return;
-        }
+        let isMounted = true;
 
-        fetchShippingStatus();
+		const load = async () => {
+			if (!isMounted) return;
+			await fetchShippingStatus();
+		};
+
+		load();
+
+		return () => {
+			isMounted = false;
+		};
     }, []);
 
     const fetchShippingStatus = async () => {
         try {
-            const token = localStorage.getItem("authToken");
+			const data = await apiFetch(
+				"https://www.allstockcontrol.com/api/get_shippings.php",
+				{
+					method: "GET"
+				}
+			);
 
-            const response = await fetch("https://www.allstockcontrol.com/api/get_shippings.php", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                }
-            });
-
-            const data = await response.json();
+			if (!data) return;
             // console.log("Shipping status:", data);
 
             if (!data.success) {

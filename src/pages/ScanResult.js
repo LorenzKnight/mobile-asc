@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { apiFetch } from "../utils/functions";
 import Header from "../components/Header";
 import "../assets/styles/scanresult.css";
 
@@ -47,20 +48,16 @@ const ScanResult = () => {
 
 				if (!companyId) throw new Error("Company ID not found in token.");
 
-				const response = await fetch(
+				const result = await apiFetch(
 					`https://www.allstockcontrol.com/api/get_shippings.php?search=${encodeURIComponent(
 						data
 					)}&company=${companyId}`,
 					{
-						method: "GET",
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"Content-Type": "application/json",
-						},
+						method: "GET"
 					}
 				);
 
-				const result = await response.json();
+				if (!result) return;
 
 				if (result.success && result.data.length > 0) {
 					const shipping = result.data[0];
@@ -73,25 +70,21 @@ const ScanResult = () => {
 						return;
 					}
 
-					// 🧩 NUEVA VALIDACIÓN:
-					// Verificar si este usuario ya está en shipping_tracking
-					const trackRes = await fetch(
-						`https://www.allstockcontrol.com/api/check_shipping.php`,
+					const trackResult = await apiFetch(
+						"https://www.allstockcontrol.com/api/check_shipping.php",
 						{
 							method: "POST",
-							headers: {
-								Authorization: `Bearer ${token}`,
-							},
 							body: (() => {
 								const f = new FormData();
 								f.append("shipping_id", shipping.shippings_id || shipping.shipping_id);
-								f.append("test_mode", "check_only"); // 👈 no insertará nada
+								f.append("test_mode", "check_only");
 								return f;
-							})(),
+							})()
 						}
 					);
 
-					const trackResult = await trackRes.json();
+					if (!trackResult) return;
+
 					if (
 						trackResult.message?.includes("Already checked") ||
 						trackResult.message?.includes("already delivered")
@@ -142,15 +135,15 @@ const ScanResult = () => {
 			formData.append("latitude", latitude);
 			formData.append("longitude", longitude);
 
-			const res = await fetch("https://www.allstockcontrol.com/api/check_shipping.php", {
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-				body: formData,
-			});
+			const result = await apiFetch(
+				"https://www.allstockcontrol.com/api/check_shipping.php",
+				{
+					method: "POST",
+					body: formData
+				}
+			);
 
-			const result = await res.json();
+			if (!result) return;
 
 			if (result.success) {
 				// ✅ Mostrar popup temporal de éxito

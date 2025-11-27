@@ -19,3 +19,36 @@ export const formatNotificationDate = (dateString) => {
         return `${year}/${month}/${day}`;
     }
 };
+
+export async function apiFetch(url, options = {}) {
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...(options.headers || {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        }
+    });
+
+    if (response.status === 401) {
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch (e) {}
+
+        localStorage.removeItem("authToken");
+
+        if (data.reason === "TOKEN_REVOKED") {
+            alert("Sesión iniciada en otro dispositivo");
+        } else {
+            alert("Sesión expirada");
+        }
+
+        window.location.href = "/";
+        return null;
+    }
+
+    return response.json();
+}
