@@ -21,6 +21,9 @@ function Login() {
 				throw new Error('No internet connection.');
 			}
 
+			localStorage.removeItem("authToken");
+			localStorage.removeItem("refreshToken");
+
 			const response = await fetch('https://www.allstockcontrol.com/api/login.php', {
 				method: 'POST',
 				headers: {
@@ -41,6 +44,10 @@ function Login() {
 				// ✅ Guardar el token en el almacenamiento local
 				localStorage.setItem('authToken', data.token);
 
+				if (data.refresh_token) {
+					localStorage.setItem("refreshToken", data.refresh_token);
+				}
+
 				setTimeout(() => {
 					setLoading(false); 
 					navigate('/dashboard');
@@ -57,6 +64,8 @@ function Login() {
 				setErrorMessage('No internet connection. Check Wi-Fi or mobile data.');
 			} else if (error.message.includes('Failed to fetch')) {
 				setErrorMessage('Unable to reach the server.');
+			} else {
+				setErrorMessage("Unexpected error. Try again.");
 			}
 		}
 	};
