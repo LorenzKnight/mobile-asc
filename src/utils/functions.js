@@ -145,12 +145,14 @@ export async function subscribeToPush() {
     const registration = await getServiceWorker();
     if (!registration) return null;
 
-    const subscription = await registration.pushManager.subscribe({
+    // ✅ Reusar si ya existe
+    const existing = await registration.pushManager.getSubscription();
+    if (existing) return existing;
+
+    return await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
     });
-
-    return subscription;
 }
 
 export async function sendSubscriptionToBackend(subscription) {
@@ -159,13 +161,12 @@ export async function sendSubscriptionToBackend(subscription) {
 
     const json = subscription.toJSON();
 
+    console.log("📤 Sending push subscription:", json);
+
     return await apiFetch(
         "https://www.allstockcontrol.com/api/save_push_subscription.php",
         {
             method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
             body: new URLSearchParams({
                 endpoint: json.endpoint,
                 p256dh: json.keys.p256dh,
@@ -184,6 +185,8 @@ export async function enablePushNotifications() {
     const subscription = await subscribeToPush();
     if (!subscription) return false;
 
-    await sendSubscriptionToBackend(subscription);
+    const result = await sendSubscriptionToBackend(subscription);
+
+    console.log("✅ Push subscription saved:", result);
     return true;
 }
