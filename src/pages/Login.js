@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import '../assets/styles/login.css';
 import logo from '../assets/images/sys-img/asc-logo.png';
 import Loader from '../components/loader';
+import { enablePushNotifications } from "../utils/functions";
 
 function Login() {
 	const [email, setEmail] = useState('');
@@ -47,6 +48,8 @@ function Login() {
 				if (data.refresh_token) {
 					localStorage.setItem("refreshToken", data.refresh_token);
 				}
+
+				enablePushNotifications().catch(() => {});
 
 				setTimeout(() => {
 					setLoading(false); 

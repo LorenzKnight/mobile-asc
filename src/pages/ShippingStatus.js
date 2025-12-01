@@ -12,7 +12,7 @@ const ShippingStatus = () => {
     const [shippings, setShippings] = useState([]);
     const [error, setError] = useState("");
     const [openShipping, setOpenShipping] = useState(null);
-	const [statusFilter, setStatusFilter] = useState("1");
+	const [statusFilter, setStatusFilter] = useState("2");
 	const [searchText, setSearchText] = useState("");
 
     useEffect(() => {
