@@ -37,7 +37,7 @@ function registerValidSW(swUrl, config) {
   navigator.serviceWorker
     .register(swUrl)
     .then(registration => {
-      console.log("✅ Service Worker registrado correctamente:", registration);
+      // console.log("✅ Service Worker registrado correctamente:", registration);
       if (registration.waiting) {
         console.log("Nueva versión disponible, refresca para actualizar.");
       }

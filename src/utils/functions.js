@@ -161,8 +161,6 @@ export async function sendSubscriptionToBackend(subscription) {
 
     const json = subscription.toJSON();
 
-    console.log("📤 Sending push subscription:", json);
-
     return await apiFetch(
         "https://www.allstockcontrol.com/api/save_push_subscription.php",
         {
