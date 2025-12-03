@@ -1,0 +1,13 @@
+.collaborator-card {
+	background: #1f2937;
+	border-radius: 12px;
+	padding: 16px;
+	margin-bottom: 12px;
+	color: #fff;
+}
+
+.collaborator-actions {
+	display: flex;
+	gap: 10px;
+	margin-top: 10px;
+}

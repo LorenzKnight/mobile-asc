@@ -77,7 +77,7 @@ const Dashboard = () => {
 					{systemPerms.platform_admin && (
 						<button className="dash-btn" onClick={() => navigate("/collaborators")}>
 							<FaUsersCog size={22} />
-							<span>Collaborator access</span>
+							<span>Collaborators access</span>
 						</button>
 					)}
 

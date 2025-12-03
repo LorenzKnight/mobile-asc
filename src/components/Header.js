@@ -118,7 +118,11 @@ const Header = () => {
 	const handleBack = () => {
 		window.dispatchEvent(new Event("stopCamera"));
 
-		navigate("/dashboard");
+		if (window.history.length > 1) {
+			navigate(-1);
+		} else {
+			navigate("/dashboard");
+		}
 	};
 
 	const handleLogout = () => {
