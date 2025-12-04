@@ -30,8 +30,6 @@ code {
 	padding: 0 2.5%;
 	display: flex;
 	align-items: center;
-	/* gap: 40px; */
-	/* background-color: red; */
 }
 
 .hidden {

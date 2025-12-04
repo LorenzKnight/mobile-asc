@@ -39,6 +39,13 @@ const Collaborators = () => {
                 setError(data.message || "Error loading collaborators");
                 setCollaborators([]);
             } else {
+				// console.table(data.users.map(u => ({
+				// 	id: u.user_id,
+				// 	name: u.full_name,
+				// 	email: u.email,
+				// 	status: u.status
+				// })));
+
                 setCollaborators(data.users || []);
             }
         } catch (error) {
@@ -108,8 +115,19 @@ const Collaborators = () => {
 												<tr>
 													{/* Avatar */}
 													<td width="12%" align="center" valign="middle">
-														<div className="collaborator-avatar">
-															{user.name?.charAt(0)}
+														<div
+															className={`collaborator-avatar ${
+																Number(user.status) === 1 ? "avatar-active" : "avatar-inactive"
+															}`}
+														>
+															{user.image ? (
+																<img
+																	src={`https://www.allstockcontrol.com/images/profile/${user.image}`}
+																	alt={user.full_name}
+																/>
+															) : (
+																user.name?.charAt(0)
+															)}
 														</div>
 													</td>
 
@@ -132,13 +150,13 @@ const Collaborators = () => {
 
 													{/* Status */}
 													<td width="10%" align="center" valign="middle">
-														<strong
+														{/* <strong
 															style={{
 																color: user.status ? "#27ae60" : "#c0392b"
 															}}
 														>
 															{user.status ? "Active" : "Inactive"}
-														</strong>
+														</strong> */}
 													</td>
 												</tr>
 											</tbody>
