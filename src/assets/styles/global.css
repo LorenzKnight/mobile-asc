@@ -18,6 +18,28 @@ code {
 		monospace;
 }
 
+.list-wrapp {
+	padding: 16px 16px 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.filter-container {
+    width: 94%;
+    margin: 0 auto 15px;
+	display: flex;
+	align-items: center;
+	gap: 40px;
+}
+
+.status-filter {
+    padding: 8px 12px;
+	border-radius: 8px;
+	border: 1px solid #ccc;
+    font-size: 16px;
+    width: 180px;
+}
+
 .hidden {
     display: none !important;
 }

@@ -1,13 +1,45 @@
+.collaborator-list {
+    width: 95%;
+    height: 60vh;
+    /* background-color: red; */
+    overflow: auto;
+    margin: 20px auto;
+    padding: 0 2.5%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 .collaborator-card {
-	background: #1f2937;
-	border-radius: 12px;
-	padding: 16px;
-	margin-bottom: 12px;
-	color: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 .15rem .45rem rgba(58,59,69,.15);
 }
 
 .collaborator-actions {
 	display: flex;
 	gap: 10px;
 	margin-top: 10px;
+}
+
+.collaborator-card h3 {
+    margin: 0 0 5px 0;
+}
+
+.collaborator-card p {
+    margin: 0;
+    color: var(--clr-dark-text);
+}
+
+.collaborator-avatar {
+	width: 42px;
+	height: 42px;
+	border-radius: 50%;
+	background: #34495e;
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
 }

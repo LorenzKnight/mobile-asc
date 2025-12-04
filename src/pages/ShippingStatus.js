@@ -77,7 +77,7 @@ const ShippingStatus = () => {
         <div className="dashboard-container">
             <Header />
 
-            <main className="dashboard-main">
+            <main className="list-wrapp">
                 <h1 className="dashboard-title">Shipping Status</h1>
 
                 {loading && <p>Loading...</p>}
@@ -103,7 +103,7 @@ const ShippingStatus = () => {
 									placeholder="Search by Shipping No." 
 									value={searchText}
 									onChange={(e) => setSearchText(e.target.value)}
-									className="search-input" 
+									className="middle-search-input" 
 								/>
 							</div>
 

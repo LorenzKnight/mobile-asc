@@ -45,7 +45,7 @@ const Dashboard = () => {
 		<div className="dashboard-container">
 			<Header />
 
-			<main className="dashboard-main">
+			<main className="list-wrapp">
 				<h1 className="dashboard-title">Welcome to the Dashboard</h1>
 
 				<div className="button-group">
@@ -58,7 +58,7 @@ const Dashboard = () => {
 					)}
 
 					{/* Shipping Status */}
-					{systemPerms.platform_admin && (
+					{permissions.shipping_access && systemPerms.process_handler && (
 						<button className="dash-btn" onClick={() => navigate("/shipping-status")}>
 							<TbShip size={22} />
 							<span>Shipping Status</span>
