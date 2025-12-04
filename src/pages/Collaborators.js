@@ -67,12 +67,55 @@ const Collaborators = () => {
 		);
 	});
 
+	const updateUserStatus = async (userId, status) => {
+		const data = await apiFetch(
+			"https://www.allstockcontrol.com/api/update_member.php",
+			{
+				method: "POST",
+				body: new URLSearchParams({
+					edit_user_id: userId,
+					status: status,
+					toggle_only: "1"
+				})
+			}
+		);
+
+		if (!data.success) {
+			throw new Error(data.message || "Update failed");
+		}
+
+		// ✅ actualizar estado local
+		setCollaborators(prev =>
+			prev.map(u =>
+				u.user_id === userId ? { ...u, status } : u
+			)
+		);
+	};
+
+	const handleToggleStatus = async (user) => {
+		const newStatus = Number(user.status) === 1 ? 0 : 1;
+
+		const confirmMessage = newStatus === 1
+			? `Activate ${user.full_name}?`
+			: `Deactivate ${user.full_name}?`;
+
+		if (!window.confirm(confirmMessage)) {
+			return; // ❌ cancelado
+		}
+
+		try {
+			await updateUserStatus(user.user_id, newStatus);
+		} catch (err) {
+			alert("Error updating user status");
+		}
+	};
+
 	return (
 		<div className="dashboard-container">
 			<Header />
 
 			<main className="list-wrapp">
-				<h1 className="dashboard-title">Collaborator access</h1>
+				<h1 className="dashboard-title">Collaborators access</h1>
 
 				{loading && <p>Loading...</p>}
 				{error && <p style={{ color: "red" }}>{error}</p>}
@@ -150,13 +193,14 @@ const Collaborators = () => {
 
 													{/* Status */}
 													<td width="10%" align="center" valign="middle">
-														{/* <strong
-															style={{
-																color: user.status ? "#27ae60" : "#c0392b"
-															}}
-														>
-															{user.status ? "Active" : "Inactive"}
-														</strong> */}
+														<label className="switch">
+															<input
+																type="checkbox"
+																checked={Number(user.status) === 1}
+																onChange={() => handleToggleStatus(user)}
+															/>
+															<span className="slider round"></span>
+														</label>
 													</td>
 												</tr>
 											</tbody>
