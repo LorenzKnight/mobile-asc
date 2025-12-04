@@ -16,7 +16,7 @@
 
 .big-search-input {
     flex: 1;
-	padding: 8px 12px 8px 40px;
+	padding: 8px 3% 8px 7%;
 	border-radius: 8px;
 	border: 1px solid #ccc;
     text-align: center;
@@ -26,9 +26,17 @@
 
 .middle-search-input {
     flex: 1;
-	padding: 8px 12px 8px 40px;
+	padding: 8px 5% 8px 20%;
 	border-radius: 8px;
 	border: 1px solid #ccc;
 	font-size: 16px;
-	width: 170px;
+	width: 50%;
+}
+
+.status-filter {
+    padding: 8px 0;
+	border-radius: 8px;
+	border: 1px solid #ccc;
+    font-size: 16px;
+    width: 41%;
 }
