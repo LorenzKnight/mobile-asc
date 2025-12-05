@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/functions";
 import { FaArrowLeft, FaBars } from "react-icons/fa";
+import { jwtDecode } from "jwt-decode";
+import useWebSocketListener from "../hooks/useWebSocketListener";
 import Modal from "./Modal";
+
 import "../assets/styles/components/header.css";
 
 const Header = () => {
@@ -12,6 +15,36 @@ const Header = () => {
 	const [menuOpen, setMenuOpen] = useState(false);
 
 	const isDashboard = location.pathname === "/dashboard";
+
+	const token = localStorage.getItem("authToken");
+	let userId = null;
+
+	try {
+		if (token) {
+			const decoded = jwtDecode(token);
+			userId = decoded.user_id;
+		}
+	} catch (err) {
+		console.error("Cannot decode token", err);
+	}
+
+	const handleLogout = () => {
+		localStorage.removeItem("authToken");
+		localStorage.removeItem("refreshToken");
+		localStorage.removeItem("camera_permission");
+		localStorage.removeItem("userPermissions");
+		localStorage.removeItem("userSystemPermissions");
+
+		setUserInfo(null);
+		// setMenuOpen(false);
+
+		window.dispatchEvent(new Event("permissionsUpdated"));
+		window.dispatchEvent(new Event("systemPermissionsUpdated"));
+
+		navigate("/");
+	};
+
+	useWebSocketListener(userId, handleLogout);
 
 	useEffect(() => {
 		// 🔹 Intentar cargar la info del usuario desde el backend o localStorage
@@ -50,7 +83,6 @@ const Header = () => {
 			try {
 				const permissionsToCheck = [
 					"shipping_access",
-
 					"scanner_access",
 					"preorder_access",
 					"collaborators_access",
@@ -123,21 +155,6 @@ const Header = () => {
 		} else {
 			navigate("/dashboard");
 		}
-	};
-
-	const handleLogout = () => {
-		localStorage.removeItem("authToken");
-		localStorage.removeItem("camera_permission");
-		localStorage.removeItem("userPermissions");
-		localStorage.removeItem("userSystemPermissions");
-
-		setUserInfo(null);
-		// setMenuOpen(false);
-
-		window.dispatchEvent(new Event("permissionsUpdated"));
-		window.dispatchEvent(new Event("systemPermissionsUpdated"));
-
-		navigate("/");
 	};
 
 	return (

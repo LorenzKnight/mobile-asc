@@ -4,18 +4,22 @@ import '../assets/styles/login.css';
 import logo from '../assets/images/sys-img/asc-logo.png';
 import Loader from '../components/loader';
 import { enablePushNotifications } from "../utils/functions";
+import Modal from "../components/Modal";
 
 function Login() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
-	const [errorMessage, setErrorMessage] = useState('');
+	const [modalError, setModalError] = useState({
+		show: false,
+		message: ""
+	});
 	const navigate = useNavigate();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setLoading(true);
-		setErrorMessage('');
+		setModalError({ show: false, message: "" });
 
 		try {
 			if (!navigator.onLine) {
@@ -57,25 +61,49 @@ function Login() {
 				}, 1000);
 			} else {
 				setLoading(false);
-				setErrorMessage(data.message || 'Incorrect credentials.');
+				setModalError({
+					show: true,
+					message: data.message || "Incorrect credentials."
+				});
 			}
 
 		} catch (error) {
 			setLoading(false);
 
+			let msg = "Unexpected error. Try again.";
+
 			if (error.message === 'No internet connection.') {
-				setErrorMessage('No internet connection. Check Wi-Fi or mobile data.');
-			} else if (error.message.includes('Failed to fetch')) {
-				setErrorMessage('Unable to reach the server.');
-			} else {
-				setErrorMessage("Unexpected error. Try again.");
+				msg = "No internet connection. Check Wi-Fi or mobile data."
 			}
+			else if (error.message.includes('Failed to fetch')) {
+				msg = "Unable to reach the server.";
+			}
+
+			setModalError({
+				show: true,
+				message: msg
+			});
 		}
 	};
 
 	return (
 		<>
 			{loading && <Loader message="Entering..." />}
+
+			<Modal
+				show={modalError.show}
+				title="Login Error"
+				message={modalError.message}
+				showCloseButton={true}
+				onClose={() => setModalError({ show: false, message: "" })}
+			>
+				{/* <button
+					className="asc-btn"
+					onClick={() => setModalError({ show: false, message: "" })}
+				>
+					OK
+				</button> */}
+			</Modal>
 
 			<div className="page-wrapper">
 				<div className="logo-container">
@@ -106,10 +134,6 @@ function Login() {
 						<button className='button-style-agree' type="submit">
 							{loading ? 'Entering...' : 'Login'}
 						</button>
-
-						{errorMessage && (
-							<p className="error-message">{errorMessage}</p>
-						)}
 					</form>
 				</div>
 			</div>
