@@ -6,6 +6,7 @@ import Scanner from '../pages/Scanner';
 import ScanResult from '../pages/ScanResult';
 import ShippingStatus from "../pages/ShippingStatus";
 import Collaborators from "../pages/Collaborators";
+import CollaboratorAccess from "../pages/CollaboratorAccess";
 import NotFound from '../pages/NotFound';
 
 function AppRouter() {
@@ -18,6 +19,7 @@ function AppRouter() {
 			<Route path="/scan-result/:data" element={<ScanResult />} />
 			<Route path="/shipping-status" element={<ShippingStatus />} />
 			<Route path="/collaborators" element={<Collaborators />} />
+			<Route path="/collaborator/:id" element={<CollaboratorAccess />} />
 			<Route path="*" element={<NotFound />} />
 		</Routes>
 		</BrowserRouter>

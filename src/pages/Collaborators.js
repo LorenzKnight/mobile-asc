@@ -184,6 +184,8 @@ const Collaborators = () => {
 									<div
 										key={user.user_id}
 										className="collaborator-card"
+										onClick={() => navigate(`/collaborator/${user.user_id}`)}
+										style={{ cursor: "pointer" }}
 									>
 										<table>
 											<tbody>
@@ -229,9 +231,13 @@ const Collaborators = () => {
 															<input
 																type="checkbox"
 																checked={Number(user.status) === 1}
+																onClick={(e) => e.stopPropagation()}
 																onChange={() => handleToggleStatus(user)}
 															/>
-															<span className="slider round"></span>
+															<span 
+																className="slider round"
+																onClick={(e) => e.stopPropagation()}
+															></span>
 														</label>
 													</td>
 												</tr>
