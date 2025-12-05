@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 import { apiFetch } from "../utils/functions";
 import Header from "../components/Header";
+import Modal from "../components/Modal";
 
 import "../assets/styles/global.css";
 import "../assets/styles/collaborators.css";
@@ -13,6 +14,27 @@ const Collaborators = () => {
 	const [collaborators, setCollaborators] = useState([]);
 	const [error, setError] = useState("");
 	const [searchText, setSearchText] = useState("");
+	const [confirmModal, setConfirmModal] = useState({
+		open: false,
+		user: null,
+		newStatus: null,
+	});
+
+	const closeModal = () => {
+		setConfirmModal({ open: false, user: null, newStatus: null });
+	};
+
+	const confirmStatusChange = async () => {
+		const { user, newStatus } = confirmModal;
+
+		try {
+			await updateUserStatus(user.user_id, newStatus);
+		} catch (err) {
+			alert("Error updating user status");
+		}
+
+		closeModal();
+	};
 
 	useEffect(() => {
 		const token = localStorage.getItem("authToken");
@@ -95,25 +117,35 @@ const Collaborators = () => {
 	const handleToggleStatus = async (user) => {
 		const newStatus = Number(user.status) === 1 ? 0 : 1;
 
-		const confirmMessage = newStatus === 1
-			? `Activate ${user.full_name}?`
-			: `Deactivate ${user.full_name}?`;
-
-		if (!window.confirm(confirmMessage)) {
-			return; // ❌ cancelado
-		}
-
-		try {
-			await updateUserStatus(user.user_id, newStatus);
-		} catch (err) {
-			alert("Error updating user status");
-		}
+		setConfirmModal({
+			open: true,
+			user,
+			newStatus,
+		});
 	};
 
 	return (
 		<div className="dashboard-container">
 			<Header />
 
+			<Modal
+				show={confirmModal.open}
+				title="Confirm action"
+				onClose={closeModal}
+				showCloseButton={true}
+				message={
+					confirmModal.newStatus === 1
+						? `Activate ${confirmModal.user?.full_name}?`
+						: `Deactivate ${confirmModal.user?.full_name}?`
+				}
+			>
+				<div style={{ marginTop: "20px", display: "flex", gap: "10px", justifyContent: "center" }}>
+					<button className="asc-btn" onClick={confirmStatusChange}>
+						Confirm
+					</button>
+				</div>
+			</Modal>
+			
 			<main className="list-wrapp">
 				<h1 className="dashboard-title">Collaborators access</h1>
 
