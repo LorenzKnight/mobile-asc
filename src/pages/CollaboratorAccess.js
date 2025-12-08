@@ -106,7 +106,11 @@ const CollaboratorAccess = () => {
 
                         {/* Perfil */}
                         <div className="profile-section">
-                            <div className="profile-avatar">
+                            <div 
+                                className={`profile-avatar ${
+                                    Number(user.status) === 1 ? "avatar-active" : "avatar-inactive"
+                                }`}
+                            >
                                 {user.image ? (
                                     <img
                                         src={`https://www.allstockcontrol.com/images/profile/${user.image}`}
@@ -131,127 +135,116 @@ const CollaboratorAccess = () => {
                         <div className="access-rights-form">
                             <input type="hidden" name="user_id" value={id} />
 
-                            <table style={{ margin: "0px auto 50px" }} width="95%" cellSpacing="0">
+                            <table style={{ margin: "0 auto" }} width="95%" cellSpacing="0">
+                                <tbody>
+                                    {/* SHIPPING ACCESS */}
+                                    <tr className="form_height" valign="baseline">
+                                        <td
+                                            width="70%"
+                                            style={{
+                                                borderBottom: "1px solid var(--clr-border)",
+                                                padding: "15px 10px"
+                                            }}
+                                        >
+                                            <span style={{ display: "block" }}>Shipping Access</span>
+                                        </td>
 
-                                {/* Title Section */}
-                                <tr className="form_height" valign="baseline">
-                                    <td
-                                        colSpan="6"
-                                        style={{
-                                            borderBottom: "1px solid var(--clr-border)",
-                                            textAlign: "center",
-                                            padding: "10px 0"
-                                        }}
-                                    >
-                                        <h2 style={{ margin: "20px 0 10px" }}>Access Rights</h2>
-                                    </td>
-                                </tr>
+                                        <td
+                                            width="30%"
+                                            style={{
+                                                borderBottom: "1px solid var(--clr-border)",
+                                                padding: "15px 10px",
+                                                textAlign: "right"
+                                            }}
+                                        >
+                                            <label className="switch">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={!!permissions.shipping_access}
+                                                    onChange={() => togglePermission("shipping_access")}
+                                                />
+                                                <span className="slider round"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
 
-                                {/* SHIPPING ACCESS */}
-                                <tr className="form_height" valign="baseline">
-                                    <td
-                                        width="50%"
-                                        style={{
-                                            borderBottom: "1px solid var(--clr-light-border)",
-                                            padding: "5px 10px"
-                                        }}
-                                    >
-                                        <span style={{ display: "block" }}>Shipping Access</span>
-                                    </td>
+                                    {/* SALE ACCESS */}
+                                    <tr className="form_height" valign="baseline">
+                                        <td
+                                            width="70%"
+                                            style={{
+                                                borderBottom: "1px solid var(--clr-border)",
+                                                padding: "15px 10px"
+                                            }}
+                                        >
+                                            <span style={{ display: "block" }}>Sale Access</span>
+                                        </td>
 
-                                    <td
-                                        width="50%"
-                                        style={{
-                                            borderBottom: "1px solid var(--clr-light-border)",
-                                            padding: "5px 10px",
-                                            textAlign: "right"
-                                        }}
-                                    >
-                                        <label className="switch">
-                                            <input
-                                                type="checkbox"
-                                                checked={!!permissions.shipping_access}
-                                                onChange={() => togglePermission("shipping_access")}
-                                            />
-                                            <span className="slider round"></span>
-                                        </label>
-                                    </td>
-                                </tr>
+                                        <td
+                                            width="30%"
+                                            style={{
+                                                borderBottom: "1px solid var(--clr-border)",
+                                                padding: "15px 10px",
+                                                textAlign: "right"
+                                            }}
+                                        >
+                                            <label className="switch">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={!!permissions.sale_access}
+                                                    onChange={() => togglePermission("sale_access")}
+                                                />
+                                                <span className="slider round"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
 
-                                {/* SALE ACCESS */}
-                                <tr className="form_height" valign="baseline">
-                                    <td
-                                        width="50%"
-                                        style={{
-                                            borderBottom: "1px solid var(--clr-light-border)",
-                                            padding: "5px 10px"
-                                        }}
-                                    >
-                                        <span style={{ display: "block" }}>Sale Access</span>
-                                    </td>
+                                    {/* SUBSECTION: MOBILE */}
+                                    <tr className="form_height" valign="baseline">
+                                        <td
+                                            colSpan="6"
+                                            style={{
+                                                borderBottom: "1px solid var(--clr-neutral-dark)",
+                                                textAlign: "center"
+                                            }}
+                                        >
+                                            <h4 style={{
+                                                marginBottom: "10px"
+                                            }}>Mobile</h4>
+                                        </td>
+                                    </tr>
 
-                                    <td
-                                        width="50%"
-                                        style={{
-                                            borderBottom: "1px solid var(--clr-light-border)",
-                                            padding: "5px 10px",
-                                            textAlign: "right"
-                                        }}
-                                    >
-                                        <label className="switch">
-                                            <input
-                                                type="checkbox"
-                                                checked={!!permissions.sale_access}
-                                                onChange={() => togglePermission("sale_access")}
-                                            />
-                                            <span className="slider round"></span>
-                                        </label>
-                                    </td>
-                                </tr>
+                                    {/* SHIPPING STATUS NOTICE */}
+                                    <tr className="form_height" valign="baseline">
+                                        <td
+                                            width="70%"
+                                            style={{
+                                                borderBottom: "1px solid var(--clr-border)",
+                                                padding: "15px 10px"
+                                            }}
+                                        >
+                                            <span style={{ display: "block" }}>Shipping Status Notice</span>
+                                        </td>
 
-                                {/* SUBSECTION: MOBILE */}
-                                <tr className="form_height" valign="baseline">
-                                    <td
-                                        colSpan="6"
-                                        style={{
-                                            borderBottom: "1px solid var(--clr-border)",
-                                            textAlign: "center"
-                                        }}
-                                    >
-                                        <h4 style={{ marginBottom: "10px" }}>Mobile</h4>
-                                    </td>
-                                </tr>
-
-                                {/* SHIPPING STATUS NOTICE */}
-                                <tr className="form_height" valign="baseline">
-                                    <td
-                                        width="50%"
-                                        style={{
-                                            borderBottom: "1px solid var(--clr-light-border)",
-                                            padding: "5px 10px"
-                                        }}
-                                    >
-                                        <span style={{ display: "block" }}>Shipping Status Notice</span>
-                                    </td>
-
-                                    <td
-                                        width="50%"
-                                        style={{
-                                            borderBottom: "1px solid var(--clr-light-border)",
-                                            padding: "5px 10px",
-                                            textAlign: "right"
-                                        }}
-                                    >
-                                        <label className="switch">
-                                            <input
-                                                type="checkbox"
-                                                checked={!!permissions.shipping_status_notice}
-                                                onChange={() => togglePermission("shipping_status_notice")}
-                                            />
-                                            <span className="slider round"></span>
-                                        </label>
-                                    </td>
-                                </tr>
+                                        <td
+                                            width="30%"
+                                            style={{
+                                                borderBottom: "1px solid var(--clr-border)",
+                                                padding: "15px 10px",
+                                                textAlign: "right"
+                                            }}
+                                        >
+                                            <label className="switch">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={!!permissions.shipping_status_notice}
+                                                    onChange={() => togglePermission("shipping_status_notice")}
+                                                />
+                                                <span className="slider round"></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
