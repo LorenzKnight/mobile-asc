@@ -203,7 +203,10 @@ const Collaborators = () => {
 																	alt={user.full_name}
 																/>
 															) : (
-																user.name?.charAt(0)
+																<img
+																	src={`https://www.allstockcontrol.com/images/sys-img/NonProfilePic.png`}
+																	alt={user.full_name}
+																/>
 															)}
 														</div>
 													</td>
