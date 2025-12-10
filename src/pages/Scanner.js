@@ -7,14 +7,13 @@ import "../assets/styles/scanner.css";
 
 const Scanner = () => {
     const [hasPermission, setHasPermission] = useState(false);
-	const [scanResult, setScanResult] = useState(null);
 	const [error, setError] = useState(null);
     const [torchEnabled, setTorchEnabled] = useState(false);
 	const [torchAvailable, setTorchAvailable] = useState(false);
-    const [stream, setStream] = useState(null);
+    const streamRef = useRef(null);
+
     const navigate = useNavigate();
-    const videoRef = useRef(null);
-	const cameraStartedRef = useRef(false);
+	const cameraStarted = useRef(false);
 
     useEffect(() => {
         const checkCameraPermission = async () => {
@@ -43,101 +42,64 @@ const Scanner = () => {
 				// 🚫 Si no tiene permiso guardado ni concedido, mostrar popup
 				setHasPermission(false);
 			} catch (err) {
-				console.warn("Error verificando permiso de cámara:", err);
 				setHasPermission(false);
 			}
 		};
 
 		checkCameraPermission();
 
-		const stopCameraHandler = () => {
-			if (stream) {
-				stream.getTracks().forEach((t) => t.stop());
-				console.log("📷 Cámara detenida desde Header");
-			}
-
-			if (videoRef.current) videoRef.current.srcObject = null;
-			cameraStartedRef.current = false;
-		};
-
-		window.addEventListener("stopCamera", stopCameraHandler);
-
 		return () => {
-			if (stream) {
-				stream.getTracks().forEach((t) => t.stop());
-				console.log("📷 Cámara detenida al desmontar Scanner");
-			}
-
-			cameraStartedRef.current = false;
-			window.removeEventListener("stopCamera", stopCameraHandler);
+			fullStopCamera();
 		};
     }, []); // ✅ sin dependencias
 
-	useEffect(() => {
-		const blockBeepAudio = () => {
-			// 1️⃣ Eliminar cualquier <audio> que intente cargar scanner-beep
-			document.querySelectorAll('audio[src*="scanner-beep"]').forEach((audio) => {
-				console.log("🧹 Eliminando intento de beep interno");
-				audio.pause();
-				audio.removeAttribute("src");
-				audio.load();
-				audio.remove();
-			});
+	const fullStopCamera = () => {
+		// 1️⃣ Detener track del stream local
+		if (streamRef.current) {
+			streamRef.current.getTracks().forEach(t => t.stop());
+			streamRef.current = null;
+		}
 
-			// 2️⃣ Interceptar futuras creaciones del audio
-			const observer = new MutationObserver(() => {
-				const audios = document.querySelectorAll('audio[src*="scanner-beep"]');
-				if (audios.length > 0) {
-					audios.forEach((a) => {
-						console.log("🚫 Bloqueado beep interno antes de cargar");
-						a.pause();
-						a.removeAttribute("src");
-						a.load();
-						a.remove();
-					});
-				}
-			});
+		// 2️⃣ Detener cualquier stream activo del navegador
+		navigator.mediaDevices
+			.getUserMedia({ video: true })
+			.then((tempStream) => {
+				tempStream.getTracks().forEach((t) => t.stop());
+			})
+			.catch(() => {});
 
-			observer.observe(document.body, { childList: true, subtree: true });
-			return observer;
-		};
+		// 3️⃣ Detener el video interno del QR Scanner
+		const vid = document.querySelector(".qr-scanner video");
+		if (vid && vid.srcObject) {
+			vid.srcObject.getTracks().forEach((t) => t.stop());
+			vid.srcObject = null;
+		}
 
-		const observer = blockBeepAudio();
-		return () => observer.disconnect();
-	}, []);
+		// 4️⃣ Reset de torch y flags
+		setTorchEnabled(false);
+		cameraStarted.current = false;
+	};
 
     const startCamera = async () => {
         try {
-			if (cameraStartedRef.current) return;
-			cameraStartedRef.current = true;
+			if (cameraStarted.current) return;
+			cameraStarted.current = true;
 
             const newStream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "environment" },
             });
 
-            setStream(newStream);
+            streamRef.current = newStream;
             setHasPermission(true);
             localStorage.setItem("camera_permission", "granted");
 
-			const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-			if (isIOS) {
+			const track = newStream.getVideoTracks()[0];
+			const caps = track.getCapabilities();
+
+			if (caps && caps.torch) {
+				setTorchAvailable(true);
+			} else {
 				setTorchAvailable(false);
-				return;
-			}
-
-            if (videoRef.current) {
-				videoRef.current.srcObject = newStream;
-
-				videoRef.current.onloadedmetadata = () => {
-					const track = newStream.getVideoTracks()[0];
-					const capabilities = track.getCapabilities();
-					if (capabilities && capabilities.torch) {
-						console.log("💡 Torch disponible en este dispositivo");
-						setTorchAvailable(true);
-					} else {
-						console.log("❌ Torch no disponible");
-					}
-				};
 			}
         } catch (err) {
             console.error("Error accessing the camera:", err);
@@ -147,55 +109,46 @@ const Scanner = () => {
     };
 
     const toggleTorch = async () => {
-        try {
-            if (!stream) return;
+        if (!streamRef.current) return;
 
-            const track = stream.getVideoTracks()[0];
-            const capabilities = track.getCapabilities();
-            if (!capabilities.torch) {
-                alert("Your device does not have a compatible flashlight.");
-                return;
-            }
-
-            await track.applyConstraints({
-                advanced: [{ torch: !torchEnabled }],
-            });
-            setTorchEnabled(!torchEnabled);
-        } catch (err) {
-            console.error("Error controlling flashlight:", err);
-        }
+		try {
+			const track = streamRef.getVideoTracks()[0];
+			await track.applyConstraints({
+				advanced: [{ torch: !torchEnabled }],
+			});
+			setTorchEnabled(!torchEnabled);
+		} catch (err) {
+			console.error("Error toggling torch", err);
+		}
     };
 
     const playBeep = () => {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = ctx.createOscillator();
-        oscillator.type = "square";
-        oscillator.frequency.setValueAtTime(1000, ctx.currentTime);
-        oscillator.connect(ctx.destination);
-        oscillator.start();
-        oscillator.stop(ctx.currentTime + 0.15);
+		const osc = ctx.createOscillator();
+		osc.type = "square";
+		osc.frequency.setValueAtTime(1000, ctx.currentTime);
+		osc.connect(ctx.destination);
+		osc.start();
+		osc.stop(ctx.currentTime + 0.15);
     };
 
 	const handleScan = (data) => {
-		if (data) {
-            playBeep(); // sonido generado
-            navigator.vibrate?.(150);
-			setScanResult(data);
-            console.log("QR Detectado:", data);
+		if (!data) return;
+		playBeep();
+		navigator.vibrate?.(120);
 
-            navigate(`/scan-result/${encodeURIComponent(data)}`);
-		}
+		fullStopCamera(); // detiene antes de ir a otra vista
+
+		navigate(`/scan-result/${encodeURIComponent(data)}`);
 	};
 
 	const handleError = (err) => {
-		console.error("Camera error:", err);
-		setError("The camera could not be accessed. Check permissions.");
+		console.error(err);
+		setError("Camera error");
 	};
 
     const handleClose = () => {
-        if (stream) {
-            stream.getTracks().forEach((t) => t.stop());
-        }
+        fullStopCamera();
 		navigate("/dashboard");
 	};
 
@@ -236,7 +189,6 @@ const Scanner = () => {
                                 facingMode: "environment", // Cámara trasera
                                 aspectRatio: 1,            // Mantiene proporción cuadrada
                             }}
-                            video={{ ref: videoRef }}
                         />
 
                         {/* 💡 Botón de linterna */}
@@ -250,14 +202,6 @@ const Scanner = () => {
                         )}
                     </div>
                 )}
-
-				{/* 🔹 Mostrar resultado */}
-				{scanResult && (
-					<div className="scan-result">
-						<h3>Result:</h3>
-						<p>{scanResult}</p>
-					</div>
-				)}
 
 				{error && <p className="error-message">{error}</p>}
 			</main>

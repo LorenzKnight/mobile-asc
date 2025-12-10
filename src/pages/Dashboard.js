@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaQrcode, FaClipboardList, FaUsersCog, FaChartLine } from "react-icons/fa";
+import { FaQrcode, FaBarcode, FaClipboardList, FaUsersCog, FaChartLine } from "react-icons/fa";
 import { TbShip } from "react-icons/tb";
 import Header from "../components/Header";
 
@@ -62,6 +62,14 @@ const Dashboard = () => {
 						<button className="dash-btn" onClick={() => navigate("/shipping-status")}>
 							<TbShip size={22} />
 							<span>Shipping Status</span>
+						</button>
+					)}
+
+					{/* Scan / Add Products */}
+					{permissions.shipping_access && systemPerms.process_handler && (
+						<button className="dash-btn" onClick={() => navigate("/scan-add-product")}>
+							<FaBarcode size={22} />
+							<span>Scan / Add Products</span>
 						</button>
 					)}
 
