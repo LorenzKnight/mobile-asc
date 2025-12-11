@@ -11,6 +11,7 @@ const ScanProduct = () => {
     const [product, setProduct] = useState(null);
     const [notFound, setNotFound] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [amountToAdd, setAmountToAdd] = useState(1);
     const [error, setError] = useState(null);
 
     const streamRef = useRef(null);
@@ -211,40 +212,135 @@ const ScanProduct = () => {
 
                 {/* 🟦 Producto encontrado */}
                 {product && (
-                    <div className="product-box">
-                        {console.log(product)}
-                        <h2>{product.product_name}</h2>
-                        <p><strong>Brand:</strong> {product.product_mark}</p>
-                        <p><strong>Model:</strong> {product.product_model}</p>
-                        <p><strong>Current Stock:</strong> {product.quantity}</p>
+                    <>
+                        <div className="product-box">
+                            {console.log(product)}
+                            <div className="product-pic">
+                                {product.product_image ? (
+                                    <img
+                                        src={`https://www.allstockcontrol.com/images/products/${product.product_image}`}
+                                        alt={product.product_name}
+                                    />
+                                ) : (
+                                    <img
+                                        src={`https://www.allstockcontrol.com/images/sys-img/papel-box.png`}
+                                        alt={product.product_name}
+                                        className="grayscale-img"
+                                    />
+                                )}
+                            </div>
+                            <div className="product-desc">
+                                <table width="90%" align="center" cellSpacing="0">
+                                    <tbody>
+                                        <tr valign="baseline">
+                                            <td style={{ width: "50%", height: "10px" }}>
+                                                <strong style={{ margin: "10px 0 0" }}>{product.product_name}</strong>
+                                                <p className="mini-title" style={{ margin: 0 }}>
+                                                    {product.hs_code || ""}
+                                                </p>
+                                            </td>
 
-                        <button className="btn-add" onClick={() => addStock(1)}>
-                            + Add 1 to Stock
-                        </button>
+                                            <td style={{ width: "50%", height: "10px" }} align="right">
+                                                <p style={{ margin: "10px 0 0" }}>
+                                                    Qty: <strong>{product.quantity || ""}</strong>
+                                                </p>
+                                                <p className="mini-title" style={{ margin: 0 }}>
+                                                    {product.purpose_text || ""}
+                                                </p>
+                                            </td>
+                                        </tr>
 
-                        <button className="btn-scan" onClick={resetScanner}>
-                            Scan Another Product
-                        </button>
-                    </div>
+                                        <tr valign="baseline">
+                                            <td colSpan="6" style={{ height: "10px" }}>
+                                                <h3>
+                                                    <strong>{product.mark_name} - {product.model_name}</strong>
+                                                </h3>
+                                            </td>
+                                        </tr>
+
+                                        <tr valign="baseline">
+                                            <td colSpan="6" style={{ height: "10px" }}>
+                                                {product.submodel_name || ""}
+                                            </td>
+                                        </tr>
+
+                                        <tr valign="baseline">
+                                            <td style={{ width: "50%", borderTop: "1px solid #CCC" }}>
+                                                <p>
+                                                    Year<br />
+                                                    <strong>
+                                                        {product.product_year === 0 || product.product_year == null
+                                                            ? "N/E"
+                                                            : product.product_year}
+                                                    </strong>
+                                                </p>
+                                            </td>
+
+                                            <td style={{ width: "50%", borderTop: "1px solid #CCC" }}>
+                                                <p>
+                                                    Price<br />
+                                                    <strong>
+                                                        {product.price
+                                                            ? `$${product.price} ${product.currency}`
+                                                            : ""}
+                                                    </strong>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div className="product-input-container">
+                            <div className="amount-box">   
+                                <label htmlFor="amount">Amount to Add: </label>
+                                <input
+                                    id="amount"
+                                    type="number"
+                                    min="1"
+                                    value={amountToAdd}
+                                    onChange={(e) => setAmountToAdd(e.target.value)}
+                                    className="amount-input"
+                                />
+                            </div>
+                        </div>
+                        <div className="product-button-container">
+                            <button
+                                className="scan-btn"
+                                onClick={() => addStock(amountToAdd)}
+                            >
+                                + Add {amountToAdd} to Stock
+                            </button>
+
+                            <button className="scan-btn" onClick={resetScanner}>
+                                Scan Another Product
+                            </button>
+                        </div>
+                    </>
                 )}
 
                 {/* 🟥 Producto NO encontrado → formulario de creación */}
                 {notFound && (
-                    <div className="notfound-box">
-                        <h2>No product found</h2>
-                        <p>New barcode: <strong>{scannedCode}</strong></p>
+                    <>
+                        <div className="notfound-box">
+                            <h2>No product found</h2>
+                            <p>New barcode: <strong>{scannedCode}</strong></p>
 
-                        <a
-                            href={`/create-product?barcode=${scannedCode}`}
-                            className="btn-create"
-                        >
-                            Create New Product
-                        </a>
+                            
+                        </div>
+                        <div className="product-button-container">
+                            <a
+                                href={`/create-product?barcode=${scannedCode}`}
+                                className="scan-btn"
+                            >
+                                Create New Product
+                            </a>
 
-                        <button className="btn-scan" onClick={resetScanner}>
-                            Scan Again
-                        </button>
-                    </div>
+                            <button className="scan-btn" onClick={resetScanner}>
+                                Scan Again
+                            </button>
+                        </div>
+                    </>
                 )}
             </main>
         </div>

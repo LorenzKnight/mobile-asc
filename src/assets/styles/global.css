@@ -41,3 +41,7 @@ code {
 	font-size: 13px;
 	padding: 5px 0 0;
 }
+
+.grayscale-img {
+	filter: grayscale(75%);
+}

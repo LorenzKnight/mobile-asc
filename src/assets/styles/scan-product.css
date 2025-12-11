@@ -1,13 +1,3 @@
-/* .scan-wrapper {
-    padding: 20px;
-    text-align: center;
-}
-
-.scan-title {
-    margin-bottom: 20px;
-    font-size: 24px;
-} */
-
 .scanner-box {
     width: 100%;
     max-width: 350px;
@@ -19,40 +9,4 @@
 .loading-text {
     margin-top: 15px;
     font-size: 18px;
-}
-
-.product-box, .notfound-box {
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 12px;
-    color: #333;
-    background: #f5f5f5;
-}
-
-.btn-add, .btn-create, .btn-scan {
-    display: block;
-    width: 100%;
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-add {
-    background: #4caf50;
-    color: white;
-}
-
-.btn-create {
-    background: #2196f3;
-    color: white;
-    text-decoration: none;
-    padding: 12px;
-}
-
-.btn-scan {
-    background: #333;
-    color: white;
 }

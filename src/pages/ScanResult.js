@@ -239,7 +239,7 @@ const ScanResult = () => {
 						)}
 					</div>
 				)}
-                <div className="scan-btn-container">
+                <div className="product-button-container">
                     <button className="scan-btn" onClick={() => navigate("/scanner")}>
                         Scan another code
                     </button>
