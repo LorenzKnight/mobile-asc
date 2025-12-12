@@ -229,7 +229,7 @@ button.flash-toggle {
 
 
 
-.product-box, .notfound-box {
+.product-box {
 	width: 65%;
 	/* height: 345px; */
 	margin-bottom: 15px;
@@ -238,6 +238,19 @@ button.flash-toggle {
     color: #333;
     background-color: var(--main-bg-color);
     font-size: 12px;
+}
+
+.notfound-box {
+	width: 100%;
+	max-width: 350px;
+	margin: 0 auto 20px;
+	overflow: hidden;
+	border-radius: 12px;
+	padding: 15px;
+	color: var(--clr-neutral-dark);
+	background-color: var(--main-bg-color);
+	font-size: 14px;
+	text-align: center;
 }
 
 .product-pic {

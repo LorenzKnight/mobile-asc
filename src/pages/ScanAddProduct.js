@@ -211,119 +211,128 @@ const ScanProduct = () => {
                 {loading && <p className="loading-text">Searching...</p>}
 
                 {/* 🟦 Producto encontrado */}
-                {product && (
-                    <>
-                        <div className="product-box">
-                            {console.log(product)}
-                            <div className="product-pic">
-                                {product.product_image ? (
-                                    <img
-                                        src={`https://www.allstockcontrol.com/images/products/${product.product_image}`}
-                                        alt={product.product_name}
+                {product && (() => {
+                    const unitImg =
+                        product.sale_unit_type === "1" || product.sale_unit_type === null
+                            ? "images/sys-img/papel-box.png"
+                            : "images/sys-img/wooden-box.png";
+                    return (
+                        <>
+                            <div className="product-box">
+                                {console.log(product)}
+                                <div className="product-pic">
+                                    {product.product_image ? (
+                                        <img
+                                            src={`https://www.allstockcontrol.com/images/products/${product.product_image}`}
+                                            alt={product.product_name}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={`https://www.allstockcontrol.com/${unitImg}`}
+                                            alt={product.product_name}
+                                            className="grayscale-img"
+                                        />
+                                    )}
+                                </div>
+                                <div className="product-desc">
+                                    <table width="90%" align="center" cellSpacing="0">
+                                        <tbody>
+                                            <tr valign="baseline">
+                                                <td style={{ width: "50%", height: "10px" }}>
+                                                    <strong style={{ margin: "10px 0 0" }}>{product.product_name}</strong>
+                                                    <p className="mini-title" style={{ margin: 0 }}>
+                                                        {product.hs_code || ""}
+                                                    </p>
+                                                </td>
+
+                                                <td style={{ width: "50%", height: "10px" }} align="right">
+                                                    <p style={{ margin: "10px 0 0" }}>
+                                                        Qty: <strong>{product.quantity || ""}</strong>
+                                                    </p>
+                                                    <p className="mini-title" style={{ margin: 0 }}>
+                                                        {product.purpose_text || ""}
+                                                    </p>
+                                                </td>
+                                            </tr>
+
+                                            <tr valign="baseline">
+                                                <td colSpan="6" style={{ height: "10px" }}>
+                                                    <h3>
+                                                        <strong>{product.mark_name} - {product.model_name}</strong>
+                                                    </h3>
+                                                </td>
+                                            </tr>
+
+                                            <tr valign="baseline">
+                                                <td colSpan="6" style={{ height: "10px" }}>
+                                                    {product.submodel_name || ""}
+                                                </td>
+                                            </tr>
+
+                                            <tr valign="baseline">
+                                                <td style={{ width: "50%", borderTop: "1px solid #CCC" }}>
+                                                    <p>
+                                                        Year<br />
+                                                        <strong>
+                                                            {product.product_year === 0 || product.product_year == null
+                                                                ? "N/E"
+                                                                : product.product_year}
+                                                        </strong>
+                                                    </p>
+                                                </td>
+
+                                                <td style={{ width: "50%", borderTop: "1px solid #CCC" }}>
+                                                    <p>
+                                                        Price<br />
+                                                        <strong>
+                                                            {product.price
+                                                                ? `$${product.price} ${product.currency}`
+                                                                : ""}
+                                                        </strong>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div className="product-input-container">
+                                <div className="amount-box">   
+                                    <label htmlFor="amount">Amount to Add: </label>
+                                    <input
+                                        id="amount"
+                                        type="number"
+                                        min="1"
+                                        value={amountToAdd}
+                                        onChange={(e) => setAmountToAdd(e.target.value)}
+                                        className="amount-input"
                                     />
-                                ) : (
-                                    <img
-                                        src={`https://www.allstockcontrol.com/images/sys-img/papel-box.png`}
-                                        alt={product.product_name}
-                                        className="grayscale-img"
-                                    />
-                                )}
+                                </div>
                             </div>
-                            <div className="product-desc">
-                                <table width="90%" align="center" cellSpacing="0">
-                                    <tbody>
-                                        <tr valign="baseline">
-                                            <td style={{ width: "50%", height: "10px" }}>
-                                                <strong style={{ margin: "10px 0 0" }}>{product.product_name}</strong>
-                                                <p className="mini-title" style={{ margin: 0 }}>
-                                                    {product.hs_code || ""}
-                                                </p>
-                                            </td>
+                            <div className="product-button-container">
+                                <button
+                                    className="scan-btn"
+                                    onClick={() => addStock(amountToAdd)}
+                                >
+                                    + Add {amountToAdd} to Stock
+                                </button>
 
-                                            <td style={{ width: "50%", height: "10px" }} align="right">
-                                                <p style={{ margin: "10px 0 0" }}>
-                                                    Qty: <strong>{product.quantity || ""}</strong>
-                                                </p>
-                                                <p className="mini-title" style={{ margin: 0 }}>
-                                                    {product.purpose_text || ""}
-                                                </p>
-                                            </td>
-                                        </tr>
-
-                                        <tr valign="baseline">
-                                            <td colSpan="6" style={{ height: "10px" }}>
-                                                <h3>
-                                                    <strong>{product.mark_name} - {product.model_name}</strong>
-                                                </h3>
-                                            </td>
-                                        </tr>
-
-                                        <tr valign="baseline">
-                                            <td colSpan="6" style={{ height: "10px" }}>
-                                                {product.submodel_name || ""}
-                                            </td>
-                                        </tr>
-
-                                        <tr valign="baseline">
-                                            <td style={{ width: "50%", borderTop: "1px solid #CCC" }}>
-                                                <p>
-                                                    Year<br />
-                                                    <strong>
-                                                        {product.product_year === 0 || product.product_year == null
-                                                            ? "N/E"
-                                                            : product.product_year}
-                                                    </strong>
-                                                </p>
-                                            </td>
-
-                                            <td style={{ width: "50%", borderTop: "1px solid #CCC" }}>
-                                                <p>
-                                                    Price<br />
-                                                    <strong>
-                                                        {product.price
-                                                            ? `$${product.price} ${product.currency}`
-                                                            : ""}
-                                                    </strong>
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <button className="scan-btn" onClick={resetScanner}>
+                                    Scan Another Product
+                                </button>
                             </div>
-                        </div>
-                        <div className="product-input-container">
-                            <div className="amount-box">   
-                                <label htmlFor="amount">Amount to Add: </label>
-                                <input
-                                    id="amount"
-                                    type="number"
-                                    min="1"
-                                    value={amountToAdd}
-                                    onChange={(e) => setAmountToAdd(e.target.value)}
-                                    className="amount-input"
-                                />
-                            </div>
-                        </div>
-                        <div className="product-button-container">
-                            <button
-                                className="scan-btn"
-                                onClick={() => addStock(amountToAdd)}
-                            >
-                                + Add {amountToAdd} to Stock
-                            </button>
-
-                            <button className="scan-btn" onClick={resetScanner}>
-                                Scan Another Product
-                            </button>
-                        </div>
-                    </>
-                )}
+                        </>
+                    );
+                })()}
 
                 {/* 🟥 Producto NO encontrado → formulario de creación */}
                 {notFound && (
                     <>
                         <div className="notfound-box">
-                            <h2>No product found</h2>
+                            <span style={{ fontSize: "36px" }}>⚠️</span>
+                            <h2>
+                                No product found
+                            </h2>
                             <p>New barcode: <strong>{scannedCode}</strong></p>
 
                             
