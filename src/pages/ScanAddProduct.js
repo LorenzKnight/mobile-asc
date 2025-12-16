@@ -12,6 +12,8 @@ const ScanProduct = () => {
     const [notFound, setNotFound] = useState(false);
     const [loading, setLoading] = useState(false);
     const [amountToAdd, setAmountToAdd] = useState(1);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successData, setSuccessData] = useState(null);
     const [error, setError] = useState(null);
 
     const streamRef = useRef(null);
@@ -138,21 +140,39 @@ const ScanProduct = () => {
                 amount: amount
             });
 
-            const res = await apiFetch(
-                "https://www.allstockcontrol.com/api/add_stock.php",
+            const response = await fetch(
+                "https://www.allstockcontrol.com/api/update_product_stock.php",
                 {
                     method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+                    },
                     body
                 }
             );
 
-            if (res.success) {
-                alert("Stock updated!");
-            } else {
-                alert("Error updating stock.");
+            const text = await response.text();
+            let res = {};
+
+            try {
+                res = JSON.parse(text);
+            } catch (err) {
+                console.error("❌ ERROR: Backend devolvió texto no-JSON:", text);
+                alert("Server returned an invalid response.");
+                return;
             }
+
+            if (res.success) {
+				setSuccessData(res.data);
+				setShowSuccessModal(true);
+            } else {
+                alert(`Error: ${res.message}`);
+            }
+
         } catch (err) {
-            console.error("Error saving stock", err);
+            console.error("❌ Error saving stock", err);
+            alert("Error saving stock");
         }
     };
 
@@ -219,7 +239,7 @@ const ScanProduct = () => {
                     return (
                         <>
                             <div className="product-box">
-                                {console.log(product)}
+                                {/* {console.log(product)} */}
                                 <div className="product-pic">
                                     {product.product_image ? (
                                         <img
@@ -352,6 +372,36 @@ const ScanProduct = () => {
                     </>
                 )}
             </main>
+
+            <Modal
+				show={showSuccessModal}
+				title="Stock Updated!"
+				showCloseButton={false}
+				onClose={() => setShowSuccessModal(false)}
+			>
+				{successData && (
+					<div style={{ textAlign: "center" }}>
+						<p><strong>Previous stock:</strong> {successData.previous_stock}</p>
+						<p><strong>Added:</strong> {successData.added_amount}</p>
+						<p><strong>New stock:</strong> {successData.new_stock}</p>
+
+						<button
+							className="asc-btn"
+							style={{ marginTop: "15px" }}
+							onClick={() => {
+								setShowSuccessModal(false);
+								setAmountToAdd(1);
+								resetScanner();
+								setTimeout(() => {
+									startCamera();
+								}, 300);
+							}}
+						>
+							OK
+						</button>
+					</div>
+				)}
+			</Modal>
         </div>
     );
 };
