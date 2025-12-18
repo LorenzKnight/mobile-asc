@@ -40,6 +40,22 @@
 	margin-bottom: 16px;
 }
 
+.scroll-form {
+	max-height: 450px;
+	overflow-y: auto;
+	margin-bottom: 15px;
+	padding-right: 4px;
+	border-bottom: 1px solid #374151;
+}
+
+.asc-modal label {
+	display: block;
+	text-align: left;
+	font-size: 12px;
+	margin-bottom: 6px;
+	color: #d1d5db;
+}
+
 /* Botones reutilizables */
 .asc-btn {
 	width: 100%;

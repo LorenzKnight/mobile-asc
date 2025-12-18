@@ -3,7 +3,6 @@ import { QrScanner } from "@yudiel/react-qr-scanner";
 import { apiFetch } from "../utils/functions";
 import Modal from "../components/Modal";
 import Header from "../components/Header";
-import "../assets/styles/scan-product.css";
 
 const ScanProduct = () => {
     const [hasPermission, setHasPermission] = useState(false);
@@ -14,10 +13,51 @@ const ScanProduct = () => {
     const [amountToAdd, setAmountToAdd] = useState(1);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [successData, setSuccessData] = useState(null);
+
+	const [showCreateModal, setShowCreateModal] = useState(false);
+	// Imagen
+	const [productImage, setProductImage] = useState(null);
+
+	// Tipo de unidad
+	const [unitType, setUnitType] = useState("1");
+
+	// Unidades por paquete (solo si unitType === 2)
+	const [units, setUnits] = useState(1);
+
+	// Peso por unidad
+	const [weightUnit, setWeightUnit] = useState("");
+
+	// Peso total (auto calculado)
+	const [totalWeight, setTotalWeight] = useState("");
+
+	// Datos del producto
+	const [productName, setProductName] = useState("");
+	const [hsCode, setHsCode] = useState("");
+	const [productType, setProductType] = useState("");
+	const [productYear, setProductYear] = useState("");
+	const [productMark, setProductMark] = useState("");
+	const [productModel, setProductModel] = useState("");
+	const [productSubModel, setProductSubModel] = useState("");
+	const [productPurpose, setProductPurpose] = useState("");
+	const [quantity, setQuantity] = useState(0);
+	const [minQty, setMinQty] = useState(0);
+	const [currency, setCurrency] = useState("");
+	const [price, setPrice] = useState("");
+	const [description, setDescription] = useState("");
+	const [creating, setCreating] = useState(false);
+
     const [error, setError] = useState(null);
 
     const streamRef = useRef(null);
     const cameraStarted = useRef(false);
+
+	useEffect(() => {
+		if (unitType === "2" && weightUnit && units) {
+			setTotalWeight((parseFloat(weightUnit) * parseInt(units)).toFixed(2));
+		} else {
+			setTotalWeight(weightUnit || "");
+		}
+	}, [unitType, weightUnit, units]);
 
     // 🔵 Verificar permiso de la cámara
     useEffect(() => {
@@ -185,6 +225,79 @@ const ScanProduct = () => {
         setTimeout(() => setHasPermission(true), 250);
     };
 
+	const createProduct = async () => {
+		if (!productName.trim()) {
+			alert("Product name is required.");
+			return;
+		}
+
+		setCreating(true);
+
+		const body = new URLSearchParams({
+			product_name: productName,
+			quantity: quantity,
+			hs_code: scannedCode, // o barcode si tu DB usa ese campo
+		});
+
+		try {
+			const response = await fetch(
+				"https://www.allstockcontrol.com/api/create_product.php",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded",
+						"Authorization": `Bearer ${localStorage.getItem("authToken")}`
+					},
+					body
+				}
+			);
+
+			const text = await response.text();
+			let res = {};
+
+			try {
+				res = JSON.parse(text);
+			} catch (err) {
+				console.error("❌ Invalid JSON:", text);
+				alert("Server error.");
+				return;
+			}
+
+			if (res.success) {
+				alert("Product created successfully!");
+
+				// Reset fields
+				setProductName("");
+				setQuantity(0);
+				setShowCreateModal(false);
+
+				// Restart scanning
+				resetScanner();
+				setTimeout(() => startCamera(), 300);
+
+			} else {
+				alert("Error: " + res.message);
+			}
+
+		} catch (err) {
+			console.error(err);
+			alert("Network error.");
+		}
+
+		setCreating(false);
+	};
+
+	const handleImageUpload = (e) => {
+		const file = e.target.files[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = () => {
+			setProductImage(reader.result); // base64 para preview
+		};
+		reader.readAsDataURL(file);
+	};
+
     return (
         <div className="scanner-container">
             <Header />
@@ -219,7 +332,7 @@ const ScanProduct = () => {
                 {/* 🟢 Scanner visible SOLO cuando no se ha escaneado código */}
                 {/* hasPermission && */ !scannedCode && (
                 
-                    <div className="scanner-box">
+                    <div className="camera-view">
                         <QrScanner
                             onDecode={(result) => handleScan(result)}
                             onError={(error) => console.error(error?.message)}
@@ -228,7 +341,7 @@ const ScanProduct = () => {
                 )}
 
                 {/* ⏳ Loading */}
-                {loading && <p className="loading-text">Searching...</p>}
+                {loading && <p>Searching...</p>}
 
                 {/* 🟦 Producto encontrado */}
                 {product && (() => {
@@ -358,12 +471,12 @@ const ScanProduct = () => {
                             
                         </div>
                         <div className="product-button-container">
-                            <a
-                                href={`/create-product?barcode=${scannedCode}`}
-                                className="scan-btn"
-                            >
-                                Create New Product
-                            </a>
+							<button 
+								className="scan-btn"
+								onClick={() => setShowCreateModal(true)}
+							>
+								Create New Product
+							</button>
 
                             <button className="scan-btn" onClick={resetScanner}>
                                 Scan Again
@@ -401,6 +514,259 @@ const ScanProduct = () => {
 						</button>
 					</div>
 				)}
+			</Modal>
+
+			<Modal
+				show={showCreateModal}
+				title="Create New Product"
+				showCloseButton={true}
+				onClose={() => setShowCreateModal(false)}
+			>
+				<div className="scroll-form">
+					<table width="100%" align="center" cellSpacing="0">
+						<tbody>
+
+							{/* IMAGE UPLOAD */}
+							<tr valign="baseline" className="form_height">
+								<td colSpan="6" align="center">
+									<div className="drop-area" id="drop-product-area">
+										<img
+											className="image-preview"
+											src={productImage || ""}
+											alt="Product img Preview"
+										/>
+										<p>Drop image here or click to select</p>
+										<input
+											type="file"
+											accept="image/*"
+											id="product_image"
+											style={{ display: "none" }}
+											onChange={handleImageUpload}
+										/>
+									</div>
+								</td>
+							</tr>
+
+							{/* TYPE SELECTION */}
+							<tr valign="baseline" className="form_height">
+								<td colSpan="3" align="center">
+									<div className="modal-medium-input">
+										<input
+											type="radio"
+											id="unit_type_1"
+											name="unit_type"
+											value="1"
+											checked={unitType === "1"}
+											onChange={() => setUnitType("1")}
+										/>
+										<label htmlFor="unit_type_1">Single Unit</label>
+									</div>
+								</td>
+
+								<td colSpan="3" align="center">
+									<div className="modal-medium-input">
+										<input
+											type="radio"
+											id="unit_type_2"
+											name="unit_type"
+											value="2"
+											checked={unitType === "2"}
+											onChange={() => setUnitType("2")}
+										/>
+										<label htmlFor="unit_type_2">Multi Pack</label>
+									</div>
+								</td>
+							</tr>
+
+							{/* UNITS / WEIGHT */}
+							<tr valign="baseline" className="form_height">
+								<td colSpan="2" align="center">
+									<label>Units:</label>
+									<input
+										className="modal-medium-input"
+										type="number"
+										placeholder="1 unit"
+										disabled={unitType === "1"}
+										value={units}
+										onChange={(e) => setUnits(e.target.value)}
+									/>
+								</td>
+
+								<td colSpan="2" align="center">
+									<label>Weight/unit (kg):</label>
+									<input
+										className="modal-medium-input"
+										type="text"
+										value={weightUnit}
+										onChange={(e) => setWeightUnit(e.target.value)}
+									/>
+								</td>
+
+								<td colSpan="2" align="center">
+									<label>Total Weight (kg):</label>
+									<input
+										className="modal-medium-input"
+										type="text"
+										value={totalWeight}
+										disabled
+									/>
+								</td>
+							</tr>
+
+							{/* NAME + HS CODE */}
+							<tr valign="baseline" className="form_height">
+								<td colSpan="3" align="center">
+									<label>Name:</label>
+									<input
+										className="modal-medium-input"
+										type="text"
+										value={productName}
+										onChange={(e) => setProductName(e.target.value)}
+									/>
+								</td>
+
+								<td colSpan="3" align="center">
+									<label>Tariff fraction (HS Code):</label>
+									<input
+										className="modal-medium-input"
+										type="text"
+										value={scannedCode}
+										onChange={(e) => setHsCode(e.target.value)}
+									/>
+								</td>
+							</tr>
+
+							{/* TYPE + YEAR */}
+							{/* <tr valign="baseline" className="form_height">
+								<td colSpan="3" align="center">
+									<label>Type:</label>
+									<select
+										className="form-input-style"
+										value={productType}
+										onChange={(e) => setProductType(e.target.value)}
+									>
+										
+									</select>
+								</td>
+
+								<td colSpan="3" align="center">
+									<label>Year:</label>
+									<input
+										className="form-medium-input-style"
+										type="number"
+										value={productYear}
+										onChange={(e) => setProductYear(e.target.value)}
+									/>
+								</td>
+							</tr> */}
+
+							{/* MARK / MODEL / SUBMODEL */}
+							{/* <tr valign="baseline" className="form_height">
+								<td colSpan="2" align="center">
+									<label>Mark:</label>
+									<select
+										className="form-medium-input-style"
+										value={productMark}
+										onChange={(e) => setProductMark(e.target.value)}
+									/>
+								</td>
+
+								<td colSpan="2" align="center">
+									<label>Model:</label>
+									<select
+										className="form-medium-input-style"
+										value={productModel}
+										onChange={(e) => setProductModel(e.target.value)}
+									/>
+								</td>
+
+								<td colSpan="2" align="center">
+									<label>Sub-model:</label>
+									<select
+										className="form-medium-input-style"
+										value={productSubModel}
+										onChange={(e) => setProductSubModel(e.target.value)}
+									/>
+								</td>
+							</tr> */}
+
+							{/* PURPOSE / QTY / MIN QTY */}
+							<tr valign="baseline" className="form_height">
+								<td colSpan="2" align="center">
+									<label>Purpose:</label>
+									<select
+										className="modal-medium-input"
+										value={productPurpose}
+										onChange={(e) => setProductPurpose(e.target.value)}
+									/>
+								</td>
+
+								<td colSpan="2" align="center">
+									<label>Quantity:</label>
+									<input
+										className="modal-medium-input"
+										type="number"
+										value={quantity}
+										onChange={(e) => setQuantity(e.target.value)}
+									/>
+								</td>
+
+								<td colSpan="2" align="center">
+									<label>Min Qty:</label>
+									<input
+										className="modal-medium-input"
+										type="number"
+										value={minQty}
+										onChange={(e) => setMinQty(e.target.value)}
+									/>
+								</td>
+							</tr>
+
+							{/* CURRENCY + PRICE */}
+							<tr valign="baseline" className="form_height">
+								<td colSpan="3" align="center">
+									<label>Currency:</label>
+									<select
+										className="modal-medium-input"
+										value={currency}
+										onChange={(e) => setCurrency(e.target.value)}
+									/>
+								</td>
+
+								<td colSpan="3" align="center">
+									<label>Price:</label>
+									<input
+										className="modal-medium-input"
+										type="number"
+										value={price}
+										onChange={(e) => setPrice(e.target.value)}
+									/>
+								</td>
+							</tr>
+
+							{/* DESCRIPTION */}
+							<tr valign="baseline" className="form_height">
+								<td colSpan="6" align="center">
+									<label>Description:</label>
+									<textarea
+										className="modal-big-input"
+										rows="2"
+										value={description}
+										onChange={(e) => setDescription(e.target.value)}
+									></textarea>
+								</td>
+							</tr>
+
+						</tbody>
+					</table>
+				</div>
+					<button
+						className="asc-btn"
+						disabled={creating}
+						onClick={createProduct}
+					>
+						{creating ? "Saving..." : "Save Product"}
+					</button>
 			</Modal>
         </div>
     );

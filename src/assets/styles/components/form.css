@@ -40,3 +40,51 @@
     font-size: 16px;
     width: 41%;
 }
+
+.modal-small-input {
+    width: 80%;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid var(--clr-border);
+    display: block;
+    margin: 10px auto 20px;
+    padding: 2.5%;
+    text-align: center;
+    appearance: inherit;
+    -moz-appearance: inherit; 
+    -o-appearance: inherit;
+    -ms-appearance: inherit;
+    -webkit-appearance: inherit;
+}
+
+.modal-medium-input {
+    width: 90%;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid var(--clr-border);
+    display: block;
+    margin: 10px auto 20px;
+    padding: 2.5%;
+    text-align: center;
+    appearance: inherit;
+    -moz-appearance: inherit; 
+    -o-appearance: inherit;
+    -ms-appearance: inherit;
+    -webkit-appearance: inherit;
+}
+
+.modal-big-input {
+    width: 93%;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid var(--clr-border);
+    display: block;
+    margin: 10px auto 20px;
+    padding: 2.5%;
+    text-align: center;
+    appearance: inherit;
+    -moz-appearance: inherit; 
+    -o-appearance: inherit;
+    -ms-appearance: inherit;
+    -webkit-appearance: inherit;
+}
