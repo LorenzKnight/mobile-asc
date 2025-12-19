@@ -1,3 +1,17 @@
+.drop-area {
+    width: 94%;
+    border: 1px solid var(--clr-border);
+    border-radius: 4px;
+    color: #FFF;
+    font-size: 0.8em;
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+    margin: 10px auto 0;
+    padding: 125px 1% 20px;
+    position: relative;
+}
+
 .form-input-style {
     width: 90%;
     font-size: 16px;

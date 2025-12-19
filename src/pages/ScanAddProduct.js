@@ -471,12 +471,12 @@ const ScanProduct = () => {
                             
                         </div>
                         <div className="product-button-container">
-							<button 
+							{/* <button 
 								className="scan-btn"
 								onClick={() => setShowCreateModal(true)}
 							>
 								Create New Product
-							</button>
+							</button> */}
 
                             <button className="scan-btn" onClick={resetScanner}>
                                 Scan Again
@@ -637,11 +637,11 @@ const ScanProduct = () => {
 							</tr>
 
 							{/* TYPE + YEAR */}
-							{/* <tr valign="baseline" className="form_height">
+							<tr valign="baseline" className="form_height">
 								<td colSpan="3" align="center">
 									<label>Type:</label>
 									<select
-										className="form-input-style"
+										className="modal-medium-input"
 										value={productType}
 										onChange={(e) => setProductType(e.target.value)}
 									>
@@ -652,20 +652,20 @@ const ScanProduct = () => {
 								<td colSpan="3" align="center">
 									<label>Year:</label>
 									<input
-										className="form-medium-input-style"
+										className="modal-medium-input"
 										type="number"
 										value={productYear}
 										onChange={(e) => setProductYear(e.target.value)}
 									/>
 								</td>
-							</tr> */}
+							</tr>
 
 							{/* MARK / MODEL / SUBMODEL */}
-							{/* <tr valign="baseline" className="form_height">
+							<tr valign="baseline" className="form_height">
 								<td colSpan="2" align="center">
 									<label>Mark:</label>
 									<select
-										className="form-medium-input-style"
+										className="modal-medium-input"
 										value={productMark}
 										onChange={(e) => setProductMark(e.target.value)}
 									/>
@@ -674,7 +674,7 @@ const ScanProduct = () => {
 								<td colSpan="2" align="center">
 									<label>Model:</label>
 									<select
-										className="form-medium-input-style"
+										className="modal-medium-input"
 										value={productModel}
 										onChange={(e) => setProductModel(e.target.value)}
 									/>
@@ -683,12 +683,12 @@ const ScanProduct = () => {
 								<td colSpan="2" align="center">
 									<label>Sub-model:</label>
 									<select
-										className="form-medium-input-style"
+										className="modal-medium-input"
 										value={productSubModel}
 										onChange={(e) => setProductSubModel(e.target.value)}
 									/>
 								</td>
-							</tr> */}
+							</tr>
 
 							{/* PURPOSE / QTY / MIN QTY */}
 							<tr valign="baseline" className="form_height">
@@ -750,7 +750,7 @@ const ScanProduct = () => {
 									<label>Description:</label>
 									<textarea
 										className="modal-big-input"
-										rows="2"
+										rows="3"
 										value={description}
 										onChange={(e) => setDescription(e.target.value)}
 									></textarea>

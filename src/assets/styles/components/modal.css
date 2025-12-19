@@ -43,6 +43,8 @@
 .scroll-form {
 	max-height: 450px;
 	overflow-y: auto;
+	background-color: #1d1d1d;
+	border-radius: 10px;
 	margin-bottom: 15px;
 	padding-right: 4px;
 	border-bottom: 1px solid #374151;
