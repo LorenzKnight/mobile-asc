@@ -110,8 +110,6 @@
 .scanner-container {
     display: flex;
 	flex-direction: column;
-    /* min-height: 100vh; */
-	/* background-color: #0f172a; */
 	color: white;
 }
 
@@ -156,8 +154,6 @@
 	object-fit: cover !important;
 	transform: scaleX(1); /* espejo horizontal para parecer cámara real */
     pointer-events: none;
-    /* z-index: 1; */
-    /* position: relative; */
 }
 
 
