@@ -5,12 +5,13 @@ export default function useWebSocketListener(userId, logoutCallback) {
         if (!userId) return;
 
         const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
 
         // Construye la URL correcta para WS
         const wsUrl =
             hostname === "localhost"
                 ? "ws://localhost:3001"
-                : `ws://${hostname}:3001`;
+                : `${protocol === "https:" ? "wss" : "ws"}://${hostname}/ws`;
 
         const ws = new WebSocket(wsUrl);
 
@@ -27,6 +28,17 @@ export default function useWebSocketListener(userId, logoutCallback) {
             }
         };
 
-        return () => ws.close();
+        ws.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
+        return () => {
+            if (
+                ws.readyState === WebSocket.OPEN ||
+                ws.readyState === WebSocket.CONNECTING
+            ) {
+                ws.close();
+            }
+        };
     }, [userId, logoutCallback]);
 }
